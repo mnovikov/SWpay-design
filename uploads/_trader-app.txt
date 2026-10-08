@@ -1,0 +1,872 @@
+добавляет терминалы/карты, видит приходы, выполняет выплаты, работает со
+спорами и выводом средств 	.
+ТЗ для Claude Design: CrowdPay Trader App
+1. Цель прототипа
+Сделать кликабельный прототип CrowdPay Trader App — web-приложения для
+трейдера, который управляет своими терминалами, реквизитами, заявками, доходом
+и возвратами оператору.
+Прототип нужен для демонстрации того, как трейдер будет работать в системе:
+подключать терминалы, добавлять реквизиты, принимать PayIn, брать PayOut в
+работу, загружать подтверждения, видеть заработанную комиссию, запрашивать
+вывод процентов и выполнять возврат оператору.
+Не требуется production-ready UI, реальная бизнес-логика, пиксельная точность или
+полноценные интеграции. Нужен понятный кликабельный прототип основных user
+journeys.
+Стилистику, цвета и визуальный стиль не описывать: стиль выбран отдельно.
+2. Область прототипа
+В этом прототипе делаем только одно приложение:
+Trader Web App — рабочий кабинет трейдера.
+Не делаем:
+Operator Admin App
+Android Terminal App
+Customer-facing iframe
+Customer app
+отдельный Merchant cabinet
+При этом в Trader App нужно показать связь с Android-терминалами: трейдер видит
+свои телефоны-терминалы, добавляет реквизиты, видит статусы заявок, но не
+управляет низкоуровневой Android-логикой.
+3. Роли
+В этом приложении есть только одна пользовательская роль:
+Trader — пользователь, который:
+FinLego-CrowdPay-270426-165211
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	40/62
+
+-- 1 of 22 --
+
+управляет своими Terminal;
+добавляет и контролирует Payment Details;
+принимает PayIn через свои реквизиты;
+выполняет PayOut вручную;
+загружает доказательства платежей;
+видит свой доход;
+запрашивает Withdrawal / вывод процентов;
+выполняет Settlement / возврат оператору;
+участвует в Disputes через чат.
+Не показывать Operator Admin actions, доступ ко всем трейдерам или общую
+статистику всей сети.
+4. Глоссарий сущностей
+Термин 	UI-лейбл 	Смысл
+Trader 	Trader / My Profile 	текущий пользователь приложения
+Operator 	Operator 	владелец платформы, которому трейдер
+возвращает средства через Settlement
+Customer 	Customer 	конечный пользователь, связанный с
+PayIn или PayOut
+Terminal 	Terminal 	Android-телефон трейдера
+Payment Details 	Payment Details /
+Реквизиты
+реквизиты для СБП: phone number + full
+name + bank
+Bank 	Bank 	банк, определяющий лимиты и формат
+SMS/Push
+PayIn Order 	PayIn Order 	входящая заявка: Customer → Payment
+Details трейдера
+PayOut Order 	PayOut Order 	заявка на выплату: Payment Details
+трейдера → Customer
+Withdrawal 	Withdrawal / Вывод
+процентов
+вывод заработанной комиссии трейдера
+Settlement 	Settlement / Возврат
+оператору
+возврат денег оператору по запросу
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	41/62
+
+-- 2 of 22 --
+
+Термин 	UI-лейбл 	Смысл
+Dispute 	Dispute 	спор по PayIn или PayOut
+Tariff 	My Tariff 	тариф трейдера, доступен только для
+просмотра
+Earnings 	Earnings 	доход трейдера: начисленные комиссии,
+доступно к выводу, ожидает выплаты
+5. Модель отношений
+Использовать такую модель:
+Правила:
+Trader видит только свои данные.
+Trader не видит других трейдеров.
+Trader не редактирует тарифы.
+Trader
+└── Terminal(s)
+└── Payment Details
+└── Bank
+PayIn Order
+├── Customer
+├── Terminal
+├── Payment Details
+└── Bank
+PayOut Order
+├── Customer
+├── Terminal
+├── Payment Details
+└── Bank
+Withdrawal
+└── Trader earnings
+Settlement
+├── Trader
+└── Operator
+Dispute
+├── PayIn Order or PayOut Order
+└── Chat with Operator Admin
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	42/62
+
+-- 3 of 22 --
+
+Trader может добавлять и управлять своими Terminal и Payment Details, если они
+ещё не заблокированы/списаны.
+Trader выполняет PayOut вручную.
+Trader может взять PayOut Order в работу.
+Trader может загружать proof: чек, скриншот, документ, ссылку.
+Trader участвует в Dispute через чат.
+Trader может запросить Withdrawal.
+Trader может отправить proof по Settlement.
+6. Основная навигация
+Сделать более короткую навигацию, чем в Operator Admin.
+Разделы:
+1. Dashboard
+2. PayIn Orders
+3. PayOut Orders
+4. Terminals
+5. Payment Details
+6. Earnings
+7. Withdrawals
+8. Settlements
+9. Disputes
+10. My Tariff
+11. Profile
+Можно сгруппировать Earnings + Withdrawals в один раздел Earnings, если нужно
+упростить интерфейс.
+7. Общий UX-паттерн
+Прототип должен быть минимально кликабельным.
+Основной паттерн:
+В каждом разделе есть таблица или список карточек.
+Клик по строке/карточке открывает правый Drawer с деталями.
+В Drawers есть: Overview, Status, Related Details, Timeline, Proofs/Documents,
+Actions.
+Для Dispute Drawer есть настоящий чат.
+Основные действия открывают modal или меняют статус в прототипе.
+Не нужно делать полноценные отдельные detail pages.
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	43/62
+
+-- 4 of 22 --
+
+Не нужно показывать сложный ledger. Доход показывать в понятных summary
+cards.
+8. Dashboard
+Главный экран трейдера.
+Верхние карточки
+Показать:
+Available earnings
+Pending withdrawal
+Today PayIn volume
+Today PayOut volume
+Active PayOut Orders
+Active Payment Details
+Open Disputes
+Settlement requested
+Success rate today
+Average PayOut completion time
+Блоки ниже
+1. My Earnings
+earned today
+earned this month
+available to withdraw
+pending withdrawal
+2. Active Work
+PayOut Orders in progress
+PayOut Orders available to claim
+Settlements waiting for proof
+Disputes waiting for trader response
+3. My Terminals
+terminal cards
+active/closed
+linked Payment Details count
+4. Recent Activity
+recent PayIn completed
+PayOut proof uploaded
+Withdrawal requested
+Settlement confirmed
+Dispute message received
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	44/62
+
+-- 5 of 22 --
+
+Кликабельность:
+Клик по Available earnings открывает Earnings.
+Клик по Active PayOut Orders открывает PayOut Orders.
+Клик по Open Disputes открывает Disputes.
+Клик по terminal card открывает Terminal Drawer.
+9. PayIn Orders
+PayIn для трейдера — это входящие платежи Customer на его Payment Details.
+Процесс в основном автоматический: система назначает реквизиты, Android-
+терминал читает SMS/Push, PayIn подтверждается.
+Trader должен видеть PayIn, но обычно не выполнять активных действий, кроме
+просмотра, комментария или участия в споре.
+Таблица
+Колонки:
+Order ID
+Created at
+Status
+Amount
+Currency
+Customer
+Terminal
+Payment Details
+Bank
+Confirmation source
+Time to confirm
+Dispute flag
+Фильтры:
+Status
+Bank
+Terminal
+Payment Details
+Date range
+Disputed only
+Статусы PayIn Order
+Использовать:
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	45/62
+
+-- 6 of 22 --
+
+PayIn Drawer
+Показать:
+Order summary.
+Customer ID / phone.
+Terminal.
+Payment Details.
+Bank.
+SMS/Push confirmation block.
+Timeline:
+Order created
+Payment Details assigned
+Waiting for payment
+SMS/Push detected
+Auto confirmed
+Completed
+Related Dispute, если есть.
+Actions:
+Open related dispute
+Add comment
+Report issue
+Не давать трейдеру вручную менять PayIn на Completed/Failed, если это решение
+админа или автоматики.
+10. PayOut Orders
+PayOut — главный рабочий раздел трейдера.
+Trader видит доступные заявки, может взять заявку в работу, выполнить перевод
+вручную и загрузить proof.
+Вкладки
+Сделать вкладки:
+Created
+Assigned
+Waiting for Payment
+Payment Detected
+Auto Confirmed
+Completed
+Expired
+Failed
+Disputed
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	46/62
+
+-- 7 of 22 --
+
+1. Available
+2. In Progress
+3. Proof Uploaded
+4. Completed
+5. Failed / Disputed
+Таблица / карточки
+Для Available PayOut Orders можно использовать карточки, чтобы они выглядели как
+очередь работы.
+Поля:
+Order ID
+Amount
+Currency
+Customer payment target
+Customer bank
+Time left to claim / execute
+Priority
+Status
+Commission estimate
+Для общей таблицы:
+Order ID
+Created at
+Status
+Amount
+Customer
+Customer bank
+Payment target
+Timer
+Proof status
+Commission
+Статусы PayOut Order
+Использовать:
+Pending
+Available to Claim
+In Progress
+Proof Uploaded
+Completed
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	47/62
+
+-- 8 of 22 --
+
+PayOut Drawer
+Показать:
+Order summary.
+Amount.
+Commission estimate.
+Customer payment target:
+phone/card placeholder
+bank
+full name
+Execution instructions.
+Timer / lock period.
+Proof upload area.
+Timeline:
+Order available
+Trader claimed order
+Payment in progress
+Proof uploaded
+Waiting for admin approval
+Completed
+Actions
+В зависимости от статуса:
+Для Available to Claim:
+Take to Work
+Для In Progress:
+Upload Proof
+Mark as Unable to Complete
+Release Order
+Add comment
+Для Proof Uploaded:
+View uploaded proof
+Replace proof
+Partially Completed
+Failed
+Frozen
+Disputed
+Expired / Released
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	48/62
+
+-- 9 of 22 --
+
+Add comment
+Для Disputed:
+Open Dispute Chat
+Upload additional proof
+Важно: Trader выполняет перевод вне системы, в банковском приложении. В
+прототипе это показать через instruction block: “Open your banking app, transfer the
+amount, then upload receipt.”
+11. Terminals
+Terminal — Android-телефон трейдера.
+Не показывать battery, heartbeat, uptime, charging, detailed availability.
+Таблица
+Колонки:
+Terminal ID
+Device name
+Phone number
+Status
+Linked Payment Details
+Created at
+Recent activity
+Notes
+Статусы:
+Terminal Drawer
+Показать:
+Terminal summary.
+Device name.
+Phone number.
+Status.
+Linked Payment Details list.
+Recent PayIn Orders.
+Recent PayOut Orders.
+Actions:
+Add Payment Details
+Active
+Closed
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	49/62
+
+-- 10 of 22 --
+
+Close Terminal
+Add note
+Add Terminal modal
+Поля:
+Device name
+Phone number
+Comment
+Показать, что после добавления терминала трейдер должен установить/открыть
+Android Terminal App и пройти привязку, но сам Android flow не прототипировать.
+12. Payment Details / Реквизиты
+Payment Details — реквизиты трейдера для СБП, привязанные к Terminal.
+Таблица
+Колонки:
+Payment Details ID
+Type
+Phone
+Full name
+Bank
+Terminal
+Status
+Daily limit used
+Monthly limit used
+Success rate
+Recent orders
+Статусы:
+Payment Details Drawer
+Показать:
+Type: SBP.
+Phone number.
+Full name.
+Active
+Deactivated
+Frozen
+Written Off
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	50/62
+
+-- 11 of 22 --
+
+Bank.
+Terminal.
+Limits:
+min amount
+max amount
+daily volume limit
+monthly volume limit
+daily operation count limit
+Current usage:
+today volume
+month volume
+operations today
+Recent PayIn Orders.
+Recent PayOut Orders.
+Status history.
+Actions:
+Deactivate
+Reactivate
+Edit limits
+Add note
+Если Payment Details в статусе Written Off, действия редактирования должны быть
+disabled.
+Add Payment Details modal
+Поля:
+Terminal
+Type: SBP
+Phone number
+Full name
+Bank
+Min amount
+Max amount
+Daily limit
+Monthly limit
+Notes
+13. Earnings
+Раздел дохода трейдера.
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	51/62
+
+-- 12 of 22 --
+
+Не показывать сложный ledger. Показать понятную картину: сколько заработано,
+сколько доступно к выводу, сколько ожидает подтверждения, сколько уже выведено.
+Верхние карточки
+Available to withdraw
+Earned today
+Earned this month
+Pending withdrawal
+Paid this month
+Held / pending approval
+Таблица начислений
+Колонки:
+Date
+Source
+Order type: PayIn / PayOut
+Order ID
+Amount
+Commission rate
+Commission amount
+Status
+Статусы commission entry:
+Actions
+Request Withdrawal
+Open related order
+Export report placeholder
+14. Withdrawals / Вывод процентов
+Withdrawal — запрос трейдера на вывод заработанной комиссии.
+Можно сделать как отдельный раздел или вкладку внутри Earnings. Для прототипа
+лучше сделать отдельный раздел, чтобы показать capability.
+Таблица
+Accrued
+Available
+Pending
+Paid
+Cancelled
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	52/62
+
+-- 13 of 22 --
+
+Колонки:
+Withdrawal ID
+Requested at
+Amount
+Currency
+Status
+Payment target
+Approved at
+Paid at
+Comment
+Статусы:
+Withdrawal Drawer
+Показать:
+Requested amount.
+Available earnings at request time.
+Payment target.
+Status.
+Timeline:
+Requested
+Approved / Rejected
+Paid
+Actions:
+Cancel request, если статус Requested
+Add comment
+Request Withdrawal modal
+Поля:
+Amount
+Payment target
+Comment
+Показать validation hint: amount cannot exceed Available earnings.
+15. Settlements / Возврат оператору
+Requested
+Approved
+Rejected
+Paid
+Cancelled
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	53/62
+
+-- 14 of 22 --
+
+Settlement — возврат трейдером денег оператору по запросу оператора.
+Это не вывод дохода трейдера, а обратное движение денег в пользу Operator.
+Таблица
+Колонки:
+Settlement ID
+Requested at
+Due date
+Amount
+Currency
+Status
+Proof status
+Confirmed at
+Comment
+Статусы:
+Settlement Drawer
+Показать:
+Amount to return.
+Reason.
+Due date.
+Operator payment target placeholder.
+Proof upload block:
+screenshot
+document
+receipt
+link
+comment
+Timeline:
+Settlement requested by Operator
+Trader started
+Proof submitted
+Requested
+In Progress
+Proof Submitted
+Confirmed
+Rejected
+Overdue
+Cancelled
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	54/62
+
+-- 15 of 22 --
+
+Admin confirmed / rejected
+Actions:
+Mark as In Progress
+Upload Proof
+Replace Proof
+Add comment
+Open related chat/comment thread
+16. Disputes
+Trader видит только споры, связанные с его PayIn/PayOut Orders.
+Спор открывает Operator Admin. Trader отвечает в чате и загружает доказательства.
+Таблица
+Колонки:
+Dispute ID
+Related order
+Type: PayIn / PayOut
+Status
+Amount
+Customer
+Opened at
+SLA
+Last message
+Required action
+Статусы:
+Dispute Drawer
+Показать:
+1. Summary
+dispute ID
+related order
+order type
+amount
+Open
+Waiting for Trader
+Waiting for Admin
+Resolved
+Rejected
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	55/62
+
+-- 16 of 22 --
+
+customer
+status
+SLA
+2. Evidence
+customer proof placeholder
+trader proof upload
+previous receipts/documents
+3. Chat
+настоящий chat UI
+messages from Operator Admin
+messages from Trader
+message input
+attach file button
+4. Timeline
+dispute opened
+trader requested to respond
+proof uploaded
+admin decision
+5. Actions
+Send message
+Upload proof
+Open related order
+Add internal comment/note, если нужно
+Не показывать прямой контакт Customer ↔ Trader. Customer виден только как объект
+связанной операции.
+17. My Tariff
+Trader видит свой тариф, но не может его редактировать.
+Экран
+Показать карточки:
+PayIn commission rate
+PayOut commission rate
+Withdrawal rules
+Settlement rules
+Bank-specific overrides
+Effective since
+Updated by Operator
+Таблица bank-specific rates
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	56/62
+
+-- 17 of 22 --
+
+Колонки:
+Bank
+PayIn rate
+PayOut rate
+Min amount
+Max amount
+Notes
+Все поля read-only.
+Показать notice:
+18. Profile
+Раздел профиля трейдера.
+Показать:
+Name
+Contact phone
+Email / login
+Status
+Rating
+Registration date
+Current tariff
+Notes from operator, если нужно read-only
+Security placeholder:
+change password
+active sessions
+Actions:
+Edit contact details
+Change password
+Contact support placeholder
+Не показывать KYC, Team Leads, referral hierarchy.
+19. Основные user journeys для кликабельности
+Journey 1: Add Terminal and Payment Details
+ 	
+Tariffs are managed by Operator. Contact support if something looks incorre
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	57/62
+
+-- 18 of 22 --
+
+Показать:
+трейдер добавляет новый телефон;
+добавляет СБП-реквизиты;
+выбирает банк;
+задаёт лимиты;
+реквизиты появляются в списке Active.
+Journey 2: View PayIn confirmation
+Показать:
+PayIn назначен на реквизиты трейдера;
+SMS/Push обнаружен терминалом;
+операция автоматически подтверждена;
+трейдер видит начисленную комиссию.
+Journey 3: Claim and complete PayOut
+Показать:
+трейдер видит доступный PayOut;
+берёт в работу;
+получает таймер;
+вручную выполняет перевод вне системы;
+загружает чек;
+заявка переходит в Proof Uploaded / Waiting for Admin Approval.
+Journey 4: Request Withdrawal
+Показать:
+трейдер видит Available earnings;
+ 	
+Dashboard → Terminals → Add Terminal → Terminal Drawer → Add Payment Detail
+ 	
+Dashboard → PayIn Orders → Open PayIn Drawer → View SMS/Push detected → Com
+ 	
+Dashboard → PayOut Orders → Available → Open PayOut → Take to Work → Upload
+ 	
+Dashboard → Earnings → Request Withdrawal → Withdrawals → Withdrawal Request
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	58/62
+
+-- 19 of 22 --
+
+запрашивает вывод процентов;
+видит статус Requested;
+позже статус Approved / Paid.
+Journey 5: Complete Settlement
+Показать:
+оператор запросил возврат средств;
+трейдер отправил деньги оператору вне системы;
+загрузил чек/документ/ссылку;
+ждёт подтверждения админа.
+Journey 6: Respond to Dispute
+Показать:
+спор открыт админом;
+трейдер видит сообщение;
+отвечает в чате;
+прикладывает доказательство;
+статус меняется на Waiting for Admin.
+20. Mock data
+Использовать только данные одного трейдера.
+Trader
+Terminals
+ 	
+Dashboard → Settlements → Open requested Settlement → Upload Proof → Proof
+ 	
+Dashboard → Disputes → Open Dispute → Chat → Upload Proof → Waiting for Adm
+Trader: Alex Morozov
+Status: Active
+Rating: 4.8
+Current tariff: Standard Trader
+Terminal T-1001 · Android Phone 1 · +7 900 123-45-67 · Active
+Terminal T-1002 · Android Phone 2 · +7 901 555-10-20 · Active
+Terminal T-1003 · Backup Phone · +7 902 333-44-55 · Closed
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	59/62
+
+-- 20 of 22 --
+
+Payment Details
+Orders
+Earnings
+21. Что не включать
+Не включать:
+общую статистику всей сети;
+список всех трейдеров;
+Operator Admin actions;
+Merchant management;
+Team Leads;
+Trader Groups / Silver / Gold;
+referral hierarchy;
+сложный ledger/accounts;
+Terminal availability, battery, heartbeat, uptime;
+casino-specific терминологию;
+Customer-facing screens;
+Android Terminal App screens;
+реальную автоматизацию банковского приложения;
+право трейдера редактировать тарифы.
+22. Важные UI-правила
+Trader видит только свои данные.
+SBP · +7 900 123-45-67 · Alex M. · Bank A · Active
+SBP · +7 901 555-10-20 · Alex M. · Bank B · Active
+SBP · +7 902 333-44-55 · Alex M. · Bank C · Written Off
+PayIn PI-24001 · 15,000 RUB · Auto Confirmed
+PayIn PI-24002 · 8,500 RUB · Waiting for Payment
+PayOut PO-55001 · 12,000 RUB · Available to Claim
+PayOut PO-55002 · 6,000 RUB · In Progress
+PayOut PO-55003 · 20,000 RUB · Proof Uploaded
+Available to withdraw: 18,450 RUB
+Earned today: 3,200 RUB
+Earned this month: 74,600 RUB
+Pending withdrawal: 10,000 RUB
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	60/62
+
+-- 21 of 22 --
+
+Основной фокус: заработать, выполнить операции, поддерживать активные
+реквизиты, вывести проценты.
+PayOut Orders должны быть самым рабочим и заметным разделом.
+Earnings должны быть заметны уже на Dashboard.
+Withdrawal и Settlement должны быть строго разделены:
+Withdrawal = трейдер выводит свой заработок.
+Settlement = трейдер возвращает деньги оператору.
+Payment Details всегда принадлежат Terminal.
+Terminal всегда принадлежит текущему Trader.
+Bank всегда отдельное поле.
+Tariff только read-only.
+Dispute должен иметь настоящий chat UI.
+Все таблицы/карточки открывают Drawer.
+23. Expected result
+На выходе нужен кликабельный demo prototype Trader App с такими экранами:
+И с кликабельными сценариями:
+Главное впечатление от прототипа: это рабочий кабинет трейдера, где он видит свой
+доход, свои активные задачи, свои терминалы и реквизиты, быстро берёт PayOut в
+работу, загружает подтверждения, отвечает по спорам и контролирует вывод
+заработанных процентов.
+Dashboard
+PayIn Orders
+PayOut Orders
+Terminals
+Payment Details
+Earnings
+Withdrawals
+Settlements
+Disputes
+My Tariff
+Profile
+Add Terminal and Payment Details
+View PayIn confirmation
+Claim and complete PayOut
+Request Withdrawal
+Complete Settlement
+Respond to Dispute
+Sources
+4/27/26, 9:31 PM 	FinLego Misc - Инструмент для создания прототипов
+https://chatgpt.com/g/g-p-689091268fbc8191b249c25c99ed76c7-finlego-misc/c/69ef8446-65a0-838c-8033-a163c9053726 	61/62
+
+-- 22 of 22 --
+

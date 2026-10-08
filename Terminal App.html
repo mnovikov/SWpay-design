@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SWPay Terminal — Android приложение</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --paper: #ffffff;
+  --paper-2: #f7f7f5;
+  --paper-3: #ececea;
+  --ink: #141414;
+  --ink-2: #2e2e2e;
+  --ink-3: #6e6e72;
+  --ink-4: #aeaeb2;
+  --line: #ececea;
+  --line-2: #dedede;
+  --accent: #ffc107;
+  --accent-2: #ffd54f;
+  --accent-soft: #fff4c2;
+  --accent-ink: #4a3500;
+  --shadow-sm: 0 1px 0 rgba(15,15,15,0.03), 0 2px 6px rgba(15,15,15,0.04);
+  --shadow-md: 0 1px 0 rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.06);
+  --shadow-lg: 0 10px 40px rgba(15,15,15,0.14);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* tiny subtle dot grid in the background to anchor the canvas-like layout */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image: radial-gradient(rgba(20,20,20,0.045) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+#root { position: relative; z-index: 1; }
+
+.topbar__app-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px 6px 9px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent-ink);
+  font-size: 12px; font-weight: 600;
+  border: 1px solid rgba(255,193,7,0.55);
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+.topbar__app-tag::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+}
+
+/* hide scrollbar on the horizontal flow strip for a cleaner look */
+::-webkit-scrollbar { height: 10px; width: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="android-frame.jsx"></script>
+<script type="text/babel" src="terminal-app.jsx"></script>
+</body>
+</html>

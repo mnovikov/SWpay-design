@@ -1,0 +1,3295 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CrowdPay — Trader Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+
+:root {
+  --paper: #faf6ee;
+  --paper-2: #f3ecdb;
+  --paper-3: #ebe2cc;
+  --ink: #1c1a17;
+  --ink-2: #3d3933;
+  --ink-3: #807a6e;
+  --ink-4: #b9b1a0;
+  --line: #e3dcc9;
+  --line-2: #d6cdb4;
+  --accent: #ef6a3c;
+  --accent-2: #ffb27a;
+  --accent-soft: #fde6d6;
+  --accent-ink: #8a3712;
+  --plum: #5b4b8a;
+  --plum-soft: #ece6f7;
+  --teal: #1f8f86;
+  --teal-soft: #d4ece9;
+  --ok: #2f9956;
+  --ok-soft: #d6efe0;
+  --warn: #d98a1c;
+  --warn-soft: #fbe9c8;
+  --bad: #d94248;
+  --bad-soft: #fadcde;
+  --info: #3a7bd5;
+  --info-soft: #dde9fa;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 0 rgba(28,26,23,0.04), 0 2px 6px rgba(28,26,23,0.04);
+  --shadow-md: 0 1px 0 rgba(28,26,23,0.04), 0 8px 24px rgba(28,26,23,0.07);
+  --shadow-lg: 0 10px 40px rgba(28,26,23,0.14);
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", "Inter Tight", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background: var(--paper);
+  background-image:
+    radial-gradient(1200px 600px at 90% -10%, rgba(239,106,60,0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(91,75,138,0.06), transparent 60%);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* ── Layout shell ───────────────────────────────────────────────────────── */
+.app { display: grid; grid-template-columns: 256px 1fr; height: 100vh; }
+.sidebar { padding: 22px 16px 18px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--line); overflow-y: auto; }
+.sidebar__brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 18px; margin-bottom: 10px; }
+.sidebar__brand-mark { width: 36px; height: 36px; background: var(--ink); color: var(--paper); border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 16px; box-shadow: 0 4px 0 var(--accent); }
+.sidebar__brand-name { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+.sidebar__brand-tag { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); background: var(--paper-2); padding: 2px 8px; border-radius: 999px; }
+.sidebar__group { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-4); padding: 14px 12px 6px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 10px; color: var(--ink-2); cursor: pointer; user-select: none; font-size: 14px; font-weight: 500; transition: background .12s ease; border: none; background: transparent; text-align: left; width: 100%; }
+.nav-item:hover { background: var(--paper-2); }
+.nav-item--active, .nav-item--active:hover { background: var(--ink); color: var(--paper); box-shadow: var(--shadow-md); }
+.nav-item--active .nav-item__count { color: var(--accent-2); }
+.nav-item__icon { width: 24px; height: 24px; background: var(--paper-2); border-radius: 7px; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 600; font-size: 12px; flex-shrink: 0; color: var(--ink-2); }
+.nav-item--active .nav-item__icon { background: var(--accent); color: #fff; }
+.nav-item__count { margin-left: auto; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); padding: 1px 7px; border-radius: 999px; background: var(--paper-2); }
+.nav-item--active .nav-item__count { background: rgba(255,255,255,0.08); }
+.sidebar__footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-3); }
+.sidebar__avatar { width: 34px; height: 34px; background: var(--plum); color: #fff; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 13px; }
+
+.main { display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; gap: 14px; padding: 14px 32px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.topbar__crumbs { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-3); }
+.topbar__crumbs strong { color: var(--ink); font-weight: 600; font-size: 14px; }
+.topbar__search { margin-left: auto; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 13px; color: var(--ink-3); min-width: 260px; box-shadow: var(--shadow-sm); }
+.topbar__kbd { margin-left: auto; border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 6px; font-size: 10.5px; background: var(--paper); font-family: var(--font-mono); }
+
+.content { flex: 1; overflow: auto; padding: 26px 32px 60px; position: relative; }
+
+/* ── PageHead ───────────────────────────────────────────────────────────── */
+.page-head { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 22px; }
+.page-head h1 { font-family: var(--font-display); font-size: 36px; font-weight: 600; margin: 0; letter-spacing: -0.025em; line-height: 1.05; }
+.page-head__sub { color: var(--ink-3); font-size: 14px; margin-top: 6px; max-width: 720px; }
+.page-head__actions { margin-left: auto; display: flex; gap: 10px; flex-shrink: 0; }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn { border: 1px solid var(--line-2); background: #fff; color: var(--ink); padding: 9px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm); transition: background .12s ease, transform .06s ease; }
+.btn:hover { background: var(--paper-2); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn--primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn--primary:hover { background: #000; }
+.btn--accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn--accent:hover { background: #d85929; }
+.btn--ghost { background: transparent; border-color: var(--line); color: var(--ink-2); box-shadow: none; }
+.btn--ghost:hover { background: var(--paper-2); }
+.btn--danger { background: var(--bad-soft); border-color: transparent; color: var(--bad); }
+.btn--danger:hover { background: #f6c8cb; }
+.btn--ok { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+.btn--ok:hover { background: #c6e8d2; }
+.btn--sm { padding: 5px 12px; font-size: 12.5px; border-radius: 8px; }
+
+/* ── Filter chips ───────────────────────────────────────────────────────── */
+.chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 4px 0 16px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: #fff; cursor: pointer; color: var(--ink-2); font-family: inherit; }
+.chip:hover { border-color: var(--ink-3); }
+.chip--active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chip--add { border-style: dashed; border-color: var(--line-2); color: var(--ink-3); background: transparent; }
+.chip__count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--paper-2); font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; color: var(--ink-2); }
+.chip--active .chip__count { background: rgba(255,255,255,0.16); color: var(--accent-2); }
+.chip__x { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.06); font-size: 11px; line-height: 1; }
+.chip--active .chip__x { background: rgba(255,255,255,0.18); }
+.chips__sep { width: 1px; height: 22px; background: var(--line); margin: 0 6px; }
+.chips__saved { margin-left: auto; font-size: 12.5px; color: var(--ink-3); }
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.table-wrap { border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; overflow: hidden; box-shadow: var(--shadow-sm); }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table thead th { text-align: left; font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 13px 16px; background: var(--paper-2); white-space: nowrap; border-bottom: 1px solid var(--line); }
+.table tbody td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.table tbody tr { cursor: pointer; transition: background .1s ease; }
+.table tbody tr:hover { background: var(--paper-2); }
+.table tbody tr.is-selected { background: var(--accent-soft); }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody td.num { font-family: var(--font-mono); font-size: 13px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.table thead th.num { text-align: right; }
+.table .mono { font-family: var(--font-mono); font-size: 12.5px; }
+
+/* Inset table inside drawer/section: trims chrome */
+.table--inset { border-radius: 8px; border: 1px solid var(--line); overflow: hidden; }
+.table--inset thead th { background: var(--paper); padding: 10px 12px; font-size: 10.5px; }
+.table--inset tbody td { padding: 10px 12px; font-size: 13px; }
+
+.cell-stack { display: flex; flex-direction: column; gap: 1px; }
+
+.table-foot { display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: #fff; font-size: 12.5px; color: var(--ink-3); border-top: 1px solid var(--line); }
+.table-foot__pages { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+.page-btn { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+.page-btn:hover:not(:disabled) { background: var(--paper-2); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-btn--active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ── Pills / status ─────────────────────────────────────────────────────── */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--paper-2); color: var(--ink-2); border: none; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.85; }
+.pill--ok { background: var(--ok-soft); color: var(--ok); }
+.pill--warn { background: var(--warn-soft); color: var(--warn); }
+.pill--bad { background: var(--bad-soft); color: var(--bad); }
+.pill--neutral { background: var(--paper-2); color: var(--ink-3); }
+.pill--info { background: var(--info-soft); color: var(--info); }
+
+/* ── Drawer ─────────────────────────────────────────────────────────────── */
+.drawer-overlay { position: fixed; inset: 0; background: rgba(28,26,23,0.32); z-index: 5; animation: fadeIn .16s ease; backdrop-filter: blur(2px); }
+.drawer { position: fixed; top: 16px; right: 16px; bottom: 16px; width: min(640px,90%); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 6; display: flex; flex-direction: column; animation: slideIn .22s cubic-bezier(.2,.7,.2,1); overflow: hidden; }
+.drawer--wide { width: min(820px,92%); }
+@keyframes slideIn { from { transform: translateX(24px); opacity: .4; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.drawer__head { padding: 18px 22px 16px; display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.drawer__head h3 { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.drawer__id { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-3); background: #fff; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); }
+.drawer__close { margin-left: auto; border: 1px solid var(--line); background: #fff; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; cursor: pointer; color: var(--ink-3); font-size: 14px; }
+.drawer__close:hover { color: var(--ink); background: var(--paper-2); }
+.drawer__body { padding: 20px 22px 26px; overflow: auto; flex: 1; }
+.drawer__foot { border-top: 1px solid var(--line); padding: 12px 22px; display: flex; gap: 8px; align-items: center; background: var(--paper); flex-wrap: wrap; }
+.drawer__foot .spacer { flex: 1; }
+
+.dispute-sla { font-family: var(--font-mono); font-size: 12px; color: var(--warn); background: var(--warn-soft); padding: 3px 10px; border-radius: 999px; }
+
+/* ── KV list ────────────────────────────────────────────────────────────── */
+.kv { display: grid; grid-template-columns: 160px 1fr; gap: 10px 18px; font-size: 14px; margin: 0; }
+.kv dt { color: var(--ink-3); font-size: 12.5px; padding-top: 4px; font-weight: 500; }
+.kv dd { margin: 0; color: var(--ink); }
+
+/* ── Section card ───────────────────────────────────────────────────────── */
+.section { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+.section__head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.section__title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); }
+.section__rule { flex: 1; border-top: 1px solid var(--line); margin-left: 4px; }
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field__label { font-size: 12.5px; color: var(--ink-3); font-weight: 500; }
+.field__input { border: 1px solid var(--line-2); background: #fff; border-radius: 9px; padding: 9px 12px; font-size: 14px; font-family: var(--font-sans); color: var(--ink); width: 100%; }
+.field__input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field__hint { font-size: 12px; color: var(--ink-4); }
+.field--row { flex-direction: row; align-items: center; gap: 12px; }
+.field--row .field__label { min-width: 160px; flex-shrink: 0; }
+.field--row .field__input { flex: 1; }
+.field--row .field__hint { flex-basis: 100%; margin-left: 172px; margin-top: -4px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(28,26,23,0.42); z-index: 50; display: grid; place-items: center; backdrop-filter: blur(3px); animation: fadeIn .16s ease; }
+.modal { width: min(640px,92%); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
+.modal--wide { width: min(820px,94%); }
+.modal__head { padding: 18px 22px; background: var(--paper-2); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+.modal__head h3 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.modal__body { padding: 20px 22px; max-height: 70vh; overflow: auto; }
+.modal__foot { border-top: 1px solid var(--line); padding: 12px 22px; display: flex; gap: 8px; background: var(--paper); align-items: center; }
+.modal__foot .spacer { flex: 1; }
+
+/* ── Stats ──────────────────────────────────────────────────────────────── */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.stat-row--3 { grid-template-columns: repeat(3, 1fr); }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px 12px; box-shadow: var(--shadow-sm); transition: border-color .12s; }
+.stat--clickable { cursor: pointer; }
+.stat--clickable:hover { border-color: var(--accent); box-shadow: var(--shadow-md); }
+.stat__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 600; }
+.stat__value { font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-top: 4px; letter-spacing: -0.02em; line-height: 1.1; }
+.stat__delta { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* ── Tabs ───────────────────────────────────────────────────────────────── */
+.tabs { display: flex; gap: 4px; background: var(--paper-2); padding: 4px; border-radius: 10px; margin-bottom: 16px; width: fit-content; }
+.tab { padding: 6px 13px; font-size: 13px; color: var(--ink-3); cursor: pointer; border-radius: 7px; font-weight: 500; border: 0; background: transparent; appearance: none; font-family: inherit; }
+.tab:hover { color: var(--ink-2); }
+.tab--active { color: var(--ink); background: #fff; box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ── Timeline ───────────────────────────────────────────────────────────── */
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); border-radius: 2px; }
+.timeline li { position: relative; padding: 0 0 12px 28px; font-size: 13.5px; color: var(--ink); }
+.timeline li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.timeline li.muted::before { border-color: var(--line-2); box-shadow: 0 0 0 3px var(--paper-2); }
+.timeline li time { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); margin-bottom: 2px; }
+
+/* ── Notes ──────────────────────────────────────────────────────────────── */
+.note { padding: 12px 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; background: var(--paper-2); color: var(--ink-2); border: 1px solid var(--line); }
+.note--info { background: var(--info-soft); border-color: transparent; color: #1f4e92; }
+.note--ok { background: var(--ok-soft); border-color: transparent; color: #1d6e3c; }
+.note--warn { background: var(--warn-soft); border-color: transparent; color: #8c5a14; }
+.note--bad { background: var(--bad-soft); border-color: transparent; color: #8a2a2e; }
+
+/* ── Misc helpers ───────────────────────────────────────────────────────── */
+.muted { color: var(--ink-3); }
+.mono { font-family: var(--font-mono); }
+.spacer { flex: 1; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+
+/* ── Settings nav ───────────────────────────────────────────────────────── */
+.settings { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: flex-start; }
+.settings__nav { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; box-shadow: var(--shadow-sm); position: sticky; top: 0; }
+.settings__nav button { display: block; width: 100%; text-align: left; background: transparent; border: 0; padding: 10px 14px; border-radius: 8px; font-size: 13.5px; color: var(--ink-2); cursor: pointer; font-weight: 500; }
+.settings__nav button:hover { background: var(--paper-2); }
+.settings__nav button.is-active { background: var(--ink); color: #fff; }
+
+/* ── Stepper (wizard) ───────────────────────────────────────────────────── */
+.status-steps { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; }
+.status-steps__step { flex: 1; text-align: center; font-size: 12px; font-weight: 600; color: var(--ink-4); position: relative; padding: 22px 6px 0; }
+.status-steps__step::before { content: ""; position: absolute; top: 6px; left: 0; right: 0; height: 8px; background: var(--paper-2); border-radius: 999px; }
+.status-steps__step.is-done::before { background: var(--ink); }
+.status-steps__step.is-current::before { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.status-steps__step.is-done, .status-steps__step.is-current { color: var(--ink); }
+
+/* ── Usage bars (Payment Details) ───────────────────────────────────────── */
+.usage { display: inline-flex; align-items: center; gap: 8px; }
+.usage__bar { display: inline-block; width: 64px; height: 6px; background: var(--paper-2); border-radius: 999px; overflow: hidden; position: relative; }
+.usage__bar > span { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+.usage--warn .usage__bar > span { background: var(--warn); }
+.usage--bad .usage__bar > span { background: var(--bad); }
+.usage__num { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); min-width: 28px; }
+.usage--lg .usage__bar { width: 120px; height: 8px; }
+
+/* ── Proof state inline ─────────────────────────────────────────────────── */
+.proof { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-family: var(--font-mono); color: var(--ink-3); }
+.proof--uploaded { color: var(--ok); font-weight: 600; }
+.proof--rejected { color: var(--bad); font-weight: 600; }
+
+.dot-dispute { color: var(--bad); font-size: 14px; line-height: 1; }
+.rating { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.badge-type { display: inline-block; padding: 2px 9px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; background: var(--paper-2); color: var(--ink-2); }
+
+/* ── Empty ──────────────────────────────────────────────────────────────── */
+.empty { padding: 40px 20px; text-align: center; color: var(--ink-3); font-size: 13.5px; background: var(--paper); border: 1px dashed var(--line-2); border-radius: 10px; }
+
+/* ── Placeholder image ──────────────────────────────────────────────────── */
+.wf-placeholder { background: linear-gradient(135deg,var(--paper-2) 0%,var(--paper-3) 100%); border: 1px dashed var(--line-2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); text-align: center; padding: 12px; }
+
+/* ── Dashboard chart ────────────────────────────────────────────────────── */
+.chart { padding: 4px 0 0; }
+.chart__legend { display: flex; gap: 18px; padding: 6px 0 0 30px; font-size: 12px; color: var(--ink-3); }
+.chart__legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart__legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+
+/* ── Risk list (dashboard) ──────────────────────────────────────────────── */
+.risk-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.risk-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; font-size: 13px; cursor: pointer; transition: background .12s; }
+.risk-list li:hover { background: var(--paper-2); }
+.risk-list .mono { margin-left: auto; font-size: 12px; }
+
+/* ── Dispute chat ───────────────────────────────────────────────────────── */
+.chat { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; max-height: 320px; overflow-y: auto; }
+.chat__msg { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
+.chat__msg--client { align-self: flex-start; }
+.chat__msg--trader { align-self: flex-end; align-items: flex-end; }
+.chat__msg--admin { align-self: flex-end; align-items: flex-end; }
+.chat__meta { font-size: 11px; color: var(--ink-3); }
+.chat__bubble { padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; background: var(--paper-2); }
+.chat__msg--trader .chat__bubble { background: var(--info-soft); color: #1f4e92; }
+.chat__msg--admin .chat__bubble { background: var(--ink); color: #fff; }
+.chat-input { display: flex; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.chat-input .field__input { flex: 1; }
+
+
+/* ── Trader-specific additions ─────────────────────────────────────────── */
+.app-banner {
+  background: linear-gradient(180deg, #1a3a4a 0%, #1f4756 100%);
+  color: #e9eef0;
+  padding: 12px 16px 14px;
+  margin: -22px -16px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.app-banner__row { display: flex; align-items: center; gap: 8px; }
+.app-banner__logo { width: 22px; height: 22px; flex: none; display: block; }
+.app-banner__role { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal-soft); background: rgba(31,143,134,0.18); padding: 3px 8px; border-radius: 999px; }
+.app-banner__pulse {
+  margin-top: 14px;
+  padding: 10px 12px 11px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.app-banner__pulse-label {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 10px;
+  color: rgba(255,255,255,0.5); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.app-banner__pulse-meta {
+  margin-top: 6px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--font-mono);
+}
+.app-banner__pulse-meta .app-banner__meta-row { font-size: 11.5px; }
+.app-banner__pulse-meta .app-banner__meta-row b { color: #fff; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.app-banner__pulse-meta .ccy { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); font-family: var(--font-mono); letter-spacing: 0.04em; }
+.app-banner__balance {
+  margin-top: 14px;
+  padding: 10px 12px 11px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.app-banner__balance-label {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 10px;
+  color: rgba(255,255,255,0.5); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.app-banner__balance-low {
+  color: var(--coral); font-weight: 600;
+}
+.app-banner__balance-amount {
+  margin-top: 4px;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 22px; letter-spacing: -0.02em; color: #fff;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+}
+.app-banner__balance-ccy {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55);
+  font-family: var(--font-mono); letter-spacing: 0.04em;
+}
+.app-banner__balance-meta {
+  margin-top: 2px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px; color: rgba(255,255,255,0.78);
+  font-family: var(--font-mono);
+}
+.app-banner__meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.app-banner__meta-label { color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 0.04em; }
+.app-banner__meta-row b { color: #fff; font-weight: 600; font-size: 14px; white-space: nowrap; }
+.app-banner__balance-rub { color: rgba(255,255,255,0.7); }
+.app-banner__rate {
+  margin-top: 8px;
+  padding: 8px 12px 9px;
+  background: rgba(31,143,134,0.14);
+  border-radius: 10px;
+  border: 1px solid rgba(31,143,134,0.28);
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.app-banner__rate-label {
+  font-family: var(--font-mono); font-size: 10px;
+  color: rgba(255,255,255,0.55); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.app-banner__rate-value {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 16px; letter-spacing: -0.01em; color: #fff;
+}
+.app-banner__rate-value small {
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55);
+  font-family: var(--font-mono); margin-left: 4px;
+}
+.app-banner__balance-ins { color: rgba(255,255,255,0.45); }
+.app-banner__balance-ins b { color: rgba(255,255,255,0.75); font-weight: 600; }
+.app-banner__mark {
+  width: 36px; height: 36px; background: var(--teal); color: #fff;
+  border-radius: 10px; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 16px;
+  box-shadow: 0 4px 0 rgba(31,143,134,0.4);
+}
+.app-banner__name { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; line-height: 1; }
+.app-banner__sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 4px; font-family: var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.app-banner__tag {
+  margin-left: auto; font-family: var(--font-mono); font-size: 10.5px;
+  color: var(--teal-soft); background: rgba(31,143,134,0.18);
+  padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(31,143,134,0.32);
+}
+
+.topbar__app-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 8px; border-radius: 999px;
+  background: var(--teal-soft); color: #0e5d56;
+  font-size: 12px; font-weight: 600;
+  border: 1px solid rgba(31,143,134,0.25);
+}
+.topbar__app-tag::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal);
+}
+
+.density-cozy .table tbody td { padding: 16px 18px; }
+.density-cozy .table thead th { padding: 16px 18px; }
+
+/* Hero cards (dashboard, earnings, etc) */
+.hero-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.hero-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.hero-card {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px 18px 18px; box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column;
+}
+.hero-card__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 600; }
+.hero-card__value { font-family: var(--font-display); font-size: 32px; font-weight: 600; margin-top: 4px; letter-spacing: -0.025em; line-height: 1.05; }
+.hero-card__value .ccy,
+.stat__value .ccy,
+.money-big__usdt .ccy { font-size: 0.72em; font-weight: 500; color: inherit; opacity: 0.7; margin-left: 0.05em; }
+.hero-card__sub { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+.hero-card__actions { margin-top: auto; padding-top: 12px; display: flex; gap: 8px; }
+.hero-card--accent {
+  background: linear-gradient(180deg, var(--teal) 0%, #176d66 100%);
+  color: #fff; border-color: transparent;
+}
+.hero-card--accent .hero-card__label,
+.hero-card--accent .hero-card__sub { color: rgba(255,255,255,0.78); }
+.hero-card--accent .btn { background: #fff; color: var(--teal); border-color: #fff; }
+.hero-card--accent .btn--ghost { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.28); }
+
+/* Available PayOut feed (cards) */
+.payout-feed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.payout-card {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative;
+}
+.payout-card--high { border-color: var(--warn); background: linear-gradient(180deg, #fff7e9 0%, #fff 60%); }
+.payout-card__head { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.payout-card__head .mono { color: var(--ink-3); }
+.payout-card__time { margin-left: auto; color: var(--warn); font-weight: 600; }
+.payout-card__amount {
+  font-family: var(--font-display); font-size: 26px; font-weight: 600;
+  letter-spacing: -0.02em; line-height: 1; color: var(--ink);
+}
+.payout-card__meta { font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
+.payout-card__actions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* Dashboard sections grid */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.dash-grid > .section { margin-bottom: 0; }
+
+/* Bar inside cells */
+.bar { display: inline-flex; align-items: center; gap: 8px; min-width: 90px; justify-content: flex-end; }
+.bar__fill { display: inline-block; height: 6px; border-radius: 999px; min-width: 4px; flex: 1; max-width: 64px; }
+.bar { position: relative; }
+.bar__fill { display: inline-block; height: 6px; width: 64px; border-radius: 999px; background: var(--paper-2); position: relative; overflow: hidden; }
+.bar__fill::before { content: ""; position: absolute; inset: 0; width: var(--w, 0%); }
+.bar__fill--ok { background: var(--ok-soft); }
+.bar__fill--ok::before { background: var(--ok); }
+.bar__fill--warn { background: var(--warn-soft); }
+.bar__fill--warn::before { background: var(--warn); }
+.bar__fill--bad { background: var(--bad-soft); }
+.bar__fill--bad::before { background: var(--bad); }
+
+/* Toggle row (settings) */
+.toggle-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--line);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row > div:first-child { flex: 1; }
+.toggle-row__label { font-size: 14px; font-weight: 500; color: var(--ink); }
+.toggle-row__hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.switch {
+  width: 38px; height: 22px; border-radius: 999px;
+  background: var(--paper-3); border: 1px solid var(--line-2);
+  position: relative; cursor: pointer; transition: background .12s;
+  flex-shrink: 0;
+}
+.switch__thumb {
+  position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  background: #fff; border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left .14s ease;
+}
+.switch--on { background: var(--teal); border-color: var(--teal); }
+.switch--on .switch__thumb { left: 18px; }
+
+
+/* override Bar to use inline width */
+.bar { display: inline-flex; align-items: center; gap: 8px; }
+.bar__fill { display: inline-block; height: 6px; width: 64px; border-radius: 999px; background: var(--paper-2); position: relative; overflow: hidden; }
+.bar__fill > i { display: block; height: 100%; }
+.bar__fill--ok { box-shadow: inset 0 0 0 999px var(--ok); }
+.bar__fill--warn { box-shadow: inset 0 0 0 999px var(--warn); }
+.bar__fill--bad { box-shadow: inset 0 0 0 999px var(--bad); }
+.bar__label { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); min-width: 28px; text-align: right; }
+
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+window.__TWEAK_DEFAULTS__ = /*EDITMODE-BEGIN*/{
+  "accent": "#1f8f86",
+  "density": "compact"
+}/*EDITMODE-END*/;
+</script>
+
+<script type="text/babel" data-presets="react">
+/* inlined: tweaks-panel.jsx */
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+</script>
+<script type="text/babel" data-presets="react">
+/* inlined: primitives.jsx */
+// Reusable UI primitives for CrowdPay v3
+
+function Pill({ tone = "neutral", children }) {
+  return <span className={"pill pill--" + tone}>{children}</span>;
+}
+
+function StatusPill({ map, value }) {
+  const s = map[value] || { label: value, tone: "neutral" };
+  return <Pill tone={s.tone}>{s.label}</Pill>;
+}
+
+function Btn({ variant = "default", size, onClick, children, disabled, title }) {
+  const cls = ["btn"];
+  if (variant !== "default") cls.push("btn--" + variant);
+  if (size === "sm") cls.push("btn--sm");
+  return (
+    <button className={cls.join(" ")} onClick={onClick} disabled={disabled} title={title}>
+      {children}
+    </button>
+  );
+}
+
+function Chip({ active, onClick, children, removable, dashed }) {
+  const cls = ["chip"];
+  if (active) cls.push("chip--active");
+  if (dashed) cls.push("chip--add");
+  return (
+    <button className={cls.join(" ")} onClick={onClick}>
+      {children}
+      {removable && <span className="chip__x">×</span>}
+    </button>
+  );
+}
+
+function Section({ title, action, children }) {
+  return (
+    <div className="section">
+      <div className="section__head">
+        <span className="section__title">{title}</span>
+        <span className="section__rule" />
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, hint, children, row }) {
+  return (
+    <div className={"field" + (row ? " field--row" : "")}>
+      <label className="field__label">{label}</label>
+      {children}
+      {hint && <span className="field__hint">{hint}</span>}
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, mono, readOnly }) {
+  return (
+    <input
+      className="field__input"
+      style={mono ? { fontFamily: "var(--font-mono)", fontSize: 12.5 } : null}
+      value={value || ""}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      onChange={(e) => onChange && onChange(e.target.value)}
+    />
+  );
+}
+
+function Select({ value, onChange, options }) {
+  return (
+    <select className="field__input" value={value} onChange={(e) => onChange && onChange(e.target.value)}>
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  );
+}
+
+function Drawer({ title, id, status, statusMap, children, footer, onClose, wide, extraTags }) {
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose && onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <>
+      <div className="drawer-overlay" onClick={onClose} />
+      <aside className={"drawer" + (wide ? " drawer--wide" : "")}>
+        <header className="drawer__head">
+          <h3>{title}</h3>
+          {id && <span className="drawer__id">{id}</span>}
+          {status && statusMap && <StatusPill map={statusMap} value={status} />}
+          {extraTags}
+          <button className="drawer__close" onClick={onClose} aria-label="Закрыть">✕</button>
+        </header>
+        <div className="drawer__body">{children}</div>
+        {footer && <div className="drawer__foot">{footer}</div>}
+      </aside>
+    </>
+  );
+}
+
+function Modal({ title, children, footer, onClose, wide }) {
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose && onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" style={wide ? { maxWidth: 760, width: "92%" } : null} onClick={(e) => e.stopPropagation()}>
+        <header className="modal__head">
+          <h3>{title}</h3>
+          <button className="drawer__close" style={{ marginLeft: "auto" }} onClick={onClose} aria-label="Закрыть">✕</button>
+        </header>
+        <div className="modal__body">{children}</div>
+        {footer && <div className="modal__foot">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Tabs({ tabs, value, onChange }) {
+  return (
+    <div className="tabs">
+      {tabs.map((t) => (
+        <button key={t.id} className={"tab " + (value === t.id ? "tab--active" : "")} onClick={() => onChange(t.id)}>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PageHead({ title, sub, actions }) {
+  return (
+    <div className="page-head">
+      <div>
+        <h1>{title}</h1>
+        {sub && <div className="page-head__sub">{sub}</div>}
+      </div>
+      {actions && <div className="page-head__actions">{actions}</div>}
+    </div>
+  );
+}
+
+function Timeline({ items }) {
+  return (
+    <ul className="timeline">
+      {items.map((it, i) => (
+        <li key={i} className={it.muted ? "is-muted" : ""}>
+          <time>{it.time}</time>
+          {it.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function KV({ items }) {
+  return (
+    <dl className="kv">
+      {items.map(([k, v], i) => (
+        <React.Fragment key={i}>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </React.Fragment>
+      ))}
+    </dl>
+  );
+}
+
+function Empty({ children }) {
+  return <div className="empty">{children}</div>;
+}
+
+function FilterChips({ filters, value, onChange }) {
+  return (
+    <div className="chips">
+      {filters.map((f) => (
+        <Chip key={f.value} active={value === f.value} onClick={() => onChange(f.value)}>
+          {f.label}{f.count != null && <span className="chip__count">{f.count}</span>}
+        </Chip>
+      ))}
+      <span className="chips__sep" />
+      <Chip dashed>+ Фильтр</Chip>
+      <span className="chips__saved">Сохранённые виды: <strong>Сегодня</strong></span>
+    </div>
+  );
+}
+
+function PlaceholderImg({ label = "Чек / документ", h = 120 }) {
+  return (
+    <div className="wf-placeholder" style={{ height: h }}>
+      <div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, marginBottom: 4 }}>📎</div>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function Note({ tone = "neutral", children }) {
+  return <div className={"note note--" + tone}>{children}</div>;
+}
+
+Object.assign(window, {
+  Pill, StatusPill, Btn, Chip, Section, Field, TextInput, Select,
+  Drawer, Modal, Tabs, PageHead, Timeline, KV, Empty, FilterChips,
+  PlaceholderImg, Note,
+});
+
+</script>
+<script type="text/babel" data-presets="react">
+/* inlined: trader-data.jsx */
+// CrowdPay Trader App — mock data + status maps
+// Соответствует постановке P2P-процессинга v4 (M.Novikov, 30.04.2026)
+// Один трейдер: Алексей Морозов. Балансы в USDT, обороты в RUB.
+
+// ─── Banks ──────────────────────────────────────────────────────────────────
+const BANKS = [
+  { id: "B-A", name: "Bank A", short: "A" },
+  { id: "B-B", name: "Bank B", short: "B" },
+  { id: "B-C", name: "Bank C", short: "C" },
+  { id: "B-D", name: "Bank D", short: "D" },
+];
+
+// ─── Trader (себя) ──────────────────────────────────────────────────────────
+const ME = {
+  id: "TR-1042",
+  name: "Алексей Морозов",
+  status: "active",
+  rating: 4.82,
+  team: "Альфа",
+  email: "alex.morozov@crowdpay.demo",
+  phone: "+7 900 123-45-67",
+  registered: "12.03.2024",
+  tariff: "Стандарт",
+  rights: { payIn: true, payOut: true },
+  notes: "KYC пройден, проверенный",
+  // курс для отображения USDT↔RUB
+  usdtRate: 92.4,
+};
+
+// ─── Балансы трейдера (USDT) ────────────────────────────────────────────────
+const BALANCES = {
+  working: {           // Рабочий баланс
+    amount: 4280.50,   // USDT
+    currency: "USDT",
+    rubEquivalent: 395558,
+    minRequired: 500,
+    frozenUsdt: 850,   // заблокировано под взятые в работу заявки
+  },
+  insurance: {         // Страховой депозит
+    amount: 2000.00,
+    currency: "USDT",
+    rubEquivalent: 184800,
+    locked: 180,       // заморожено по спорам
+    minRequired: 1000,
+  },
+  // оперативные показатели
+  todayPayInRub: 482300,
+  todayPayOutRub: 318000,
+  todayCommissionUsdt: 34.6,
+  monthPayInRub: 4920000,
+  monthPayOutRub: 3120000,
+  monthCommissionUsdt: 412.8,
+};
+
+// ─── Rating breakdown ───────────────────────────────────────────────────────
+const RATING = {
+  score: 4.82,
+  trend: +0.04,
+  factors: [
+    { id: "payin-success",  label: "Конверсия Платежей",       value: "97%",     impact: +0.8, weight: 0.25 },
+    { id: "payout-success", label: "Успешность Выплат",        value: "94%",     impact: +0.4, weight: 0.20 },
+    { id: "payout-speed",   label: "Скорость Выплат",          value: "ср. 4:12",impact: +0.3, weight: 0.15 },
+    { id: "disputes-lost",  label: "Проигранные споры",        value: "1 / мес", impact: -0.2, weight: 0.15 },
+    { id: "uptime",         label: "Стабильность терминалов",  value: "99.2%",   impact: +0.3, weight: 0.10 },
+    { id: "details-active", label: "Активные реквизиты",       value: "4 / 5",   impact: +0.2, weight: 0.10 },
+    { id: "manual",         label: "Ручной приоритет",          value: "+0.0",   impact: 0,    weight: 0.05 },
+  ],
+  effects: [
+    { label: "Объём трафика",      value: "+18% к базе" },
+    { label: "Доступ к крупным",   value: "разрешён" },
+    { label: "Доступ к Выплатам",  value: "разрешён" },
+  ],
+};
+
+// ─── Terminals (Android-устройства) ─────────────────────────────────────────
+const TERMINALS = [
+  {
+    id: "T-1001",
+    name: "Pixel 6a",
+    phone: "+7 900 123-45-67",
+    status: "online",
+    battery: 86,
+    appVersion: "1.18.4",
+    lastHeartbeat: "12 сек назад",
+    detailsCount: 2,
+    smsToday: 142,
+    pushToday: 56,
+    smsErrorsToday: 0,
+    notes: "Основной",
+    sms: [
+      { time: "14:22:14", bank: "Bank A", parsed: true,  amount: 15000, kind: "SMS",  msg: "Перевод 15 000 ₽ от ИВАНОВ И. И. Баланс 124 580 ₽" },
+      { time: "14:18:03", bank: "Bank A", parsed: true,  amount: 8500,  kind: "Push", msg: "+8 500 ₽ Перевод по СБП" },
+      { time: "14:10:51", bank: "Bank A", parsed: true,  amount: 24000, kind: "Push", msg: "Зачисление 24 000 ₽" },
+      { time: "13:58:44", bank: "Bank A", parsed: true,  amount: 5200,  kind: "SMS",  msg: "Перевод 5 200 ₽ от ПЕТРОВ А. А." },
+      { time: "13:51:02", bank: "Bank A", parsed: false, amount: null,  kind: "SMS",  msg: "Уведомление об операции (не распознано)" },
+    ],
+  },
+  {
+    id: "T-1002",
+    name: "Redmi Note 12",
+    phone: "+7 901 555-10-20",
+    status: "online",
+    battery: 42,
+    appVersion: "1.18.4",
+    lastHeartbeat: "8 сек назад",
+    detailsCount: 2,
+    smsToday: 88,
+    pushToday: 21,
+    smsErrorsToday: 1,
+    notes: "",
+    sms: [
+      { time: "14:24:11", bank: "Bank B", parsed: true,  amount: 6000,  kind: "Push", msg: "+6 000 ₽ Перевод" },
+      { time: "14:00:33", bank: "Bank B", parsed: true,  amount: 11200, kind: "SMS",  msg: "Перевод 11 200 ₽" },
+    ],
+  },
+  {
+    id: "T-1003",
+    name: "Резерв (старый Honor)",
+    phone: "+7 902 333-44-55",
+    status: "offline",
+    battery: 12,
+    appVersion: "1.16.0",
+    lastHeartbeat: "47 мин назад",
+    detailsCount: 1,
+    smsToday: 0,
+    pushToday: 0,
+    smsErrorsToday: 0,
+    notes: "Требует обновления приложения",
+    offlineReason: "Heartbeat не получен > 5 мин",
+    sms: [],
+  },
+];
+
+// ─── Реквизиты (карты/СБП) ──────────────────────────────────────────────────
+const PAYMENT_DETAILS = [
+  {
+    id: "PD-9001",
+    method: "sbp",
+    bank: "B-A",
+    holder: "Алексей М.",
+    target: "+7 900 123-45-67",
+    last4Account: "4423",
+    terminal: "T-1001",
+    status: "active",
+    minAmount: 500,
+    maxAmount: 200000,
+    dailyLimit: 800000,
+    dailyUsed: 0.62,
+    monthlyLimit: 12000000,
+    monthlyUsed: 0.41,
+    opsLimit: 500,
+    opsToday: 142,
+    cooldown: null,
+    paymentDelaySec: 90,
+    todayVolumeRub: 496000,
+    monthVolumeRub: 4920000,
+    balanceRub: 184500,
+    success: 0.98,
+  },
+  {
+    id: "PD-9002",
+    method: "card",
+    bank: "B-B",
+    holder: "Алексей М.",
+    target: "•••• 4423",
+    last4Account: "4423",
+    terminal: "T-1001",
+    status: "active",
+    minAmount: 1000,
+    maxAmount: 150000,
+    dailyLimit: 600000,
+    dailyUsed: 0.31,
+    monthlyLimit: 8000000,
+    monthlyUsed: 0.22,
+    opsLimit: 400,
+    opsToday: 56,
+    cooldown: { remainingSec: 156, after: "PI-24006" },
+    paymentDelaySec: 180,
+    todayVolumeRub: 186000,
+    monthVolumeRub: 1760000,
+    balanceRub: 62300,
+    success: 0.96,
+  },
+  {
+    id: "PD-9003",
+    method: "sbp",
+    bank: "B-A",
+    holder: "Алексей М.",
+    target: "+7 901 555-10-20",
+    last4Account: "8821",
+    terminal: "T-1002",
+    status: "active",
+    minAmount: 500,
+    maxAmount: 180000,
+    dailyLimit: 700000,
+    dailyUsed: 0.45,
+    monthlyLimit: 10000000,
+    monthlyUsed: 0.33,
+    opsLimit: 500,
+    opsToday: 88,
+    cooldown: null,
+    paymentDelaySec: 120,
+    todayVolumeRub: 315000,
+    monthVolumeRub: 3300000,
+    balanceRub: 128700,
+    success: 0.95,
+  },
+  {
+    id: "PD-9004",
+    method: "card",
+    bank: "B-B",
+    holder: "Алексей М.",
+    target: "•••• 7711",
+    last4Account: "7711",
+    terminal: "T-1002",
+    status: "limit-exceeded",
+    minAmount: 1000,
+    maxAmount: 100000,
+    dailyLimit: 500000,
+    dailyUsed: 0.94,
+    monthlyLimit: 7000000,
+    monthlyUsed: 0.81,
+    opsLimit: 400,
+    opsToday: 380,
+    cooldown: null,
+    paymentDelaySec: 60,
+    todayVolumeRub: 470000,
+    monthVolumeRub: 5670000,
+    balanceRub: 41200,
+    success: 0.88,
+    blockReason: "Дневной лимит почти исчерпан — авто-отключение по правилу limit-95%",
+  },
+  {
+    id: "PD-9005",
+    method: "sbp",
+    bank: "B-C",
+    holder: "Алексей М.",
+    target: "+7 902 333-44-55",
+    last4Account: "1102",
+    terminal: "T-1003",
+    status: "terminal-offline",
+    minAmount: 500,
+    maxAmount: 80000,
+    dailyLimit: 400000,
+    dailyUsed: 0,
+    monthlyLimit: 5000000,
+    monthlyUsed: 0,
+    opsLimit: 300,
+    opsToday: 0,
+    cooldown: null,
+    paymentDelaySec: 60,
+    todayVolumeRub: 0,
+    monthVolumeRub: 0,
+    balanceRub: 0,
+    success: 0.71,
+    blockReason: "Терминал T-1003 offline > 5 мин",
+  },
+];
+
+// ─── PayIn заявки ───────────────────────────────────────────────────────────
+const PAY_IN = [
+  { id: "PI-24001", date: "27.04 14:22", amount: 15000, currency: "RUB", merchant: "BetCity",   merchantOrder: "bc-9821", terminal: "T-1001", details: "PD-9001", bank: "B-A", status: "completed",      source: "SMS",  payTime: "00:38", commissionUsdt: 3.24, dispute: false, expiresAt: null,
+    timeline: [
+      { ts: "14:22:01", event: "created",            label: "Заявка создана мерчантом BetCity" },
+      { ts: "14:22:02", event: "matching",           label: "Поиск реквизита" },
+      { ts: "14:22:03", event: "assigned",           label: "Закреплён реквизит PD-9001 (Bank A · СБП)" },
+      { ts: "14:22:04", event: "waiting",            label: "Ожидание оплаты клиентом" },
+      { ts: "14:22:39", event: "sms-detected",       label: "SMS от Bank A: +15 000 ₽" },
+      { ts: "14:22:39", event: "auto-confirmed",     label: "Автоподтверждение, баланс трейдера обновлён" },
+      { ts: "14:22:40", event: "merchant-callback",  label: "Webhook отправлен мерчанту" },
+    ],
+  },
+  { id: "PI-24002", date: "27.04 14:18", amount: 8500,  currency: "RUB", merchant: "MaxBet",    merchantOrder: "mb-1244", terminal: "T-1001", details: "PD-9002", bank: "B-B", status: "waiting-payment", source: "—",    payTime: "—",     commissionUsdt: 0,    dispute: false, expiresAt: "14:33 (через 11:42)",
+    timeline: [
+      { ts: "14:18:11", event: "created",     label: "Заявка создана" },
+      { ts: "14:18:12", event: "matching",    label: "Поиск реквизита" },
+      { ts: "14:18:13", event: "assigned",    label: "Закреплён реквизит PD-9002" },
+      { ts: "14:18:13", event: "waiting",     label: "Ожидание оплаты клиентом" },
+    ],
+  },
+  { id: "PI-24003", date: "27.04 14:10", amount: 24000, currency: "RUB", merchant: "BetCity",   merchantOrder: "bc-9819", terminal: "T-1002", details: "PD-9003", bank: "B-A", status: "completed",       source: "Push", payTime: "00:21", commissionUsdt: 5.19, dispute: false },
+  { id: "PI-24004", date: "27.04 13:58", amount: 5200,  currency: "RUB", merchant: "MaxBet",    merchantOrder: "mb-1241", terminal: "T-1001", details: "PD-9001", bank: "B-A", status: "completed",       source: "SMS",  payTime: "00:42", commissionUsdt: 1.13, dispute: false },
+  { id: "PI-24005", date: "27.04 13:44", amount: 89200, currency: "RUB", merchant: "Casino24",  merchantOrder: "c24-512", terminal: "T-1002", details: "PD-9003", bank: "B-A", status: "disputed",        source: "SMS",  payTime: "00:55", commissionUsdt: 0,    dispute: true,
+    timeline: [
+      { ts: "13:44:03", event: "created",        label: "Заявка создана" },
+      { ts: "13:44:11", event: "assigned",       label: "Закреплён реквизит PD-9003" },
+      { ts: "13:44:58", event: "sms-detected",   label: "SMS Bank A: +89 200 ₽" },
+      { ts: "13:44:58", event: "auto-confirmed", label: "Автоподтверждение" },
+      { ts: "27.04 11:02", event: "dispute-opened", label: "Мерчант открыл спор: «не получили услугу»" },
+    ],
+  },
+  { id: "PI-24006", date: "27.04 13:31", amount: 3200,  currency: "RUB", merchant: "MaxBet",    merchantOrder: "mb-1238", terminal: "T-1001", details: "PD-9002", bank: "B-B", status: "completed",       source: "Push", payTime: "00:18", commissionUsdt: 0.69, dispute: false },
+  { id: "PI-24007", date: "27.04 13:14", amount: 51000, currency: "RUB", merchant: "BetCity",   merchantOrder: "bc-9810", terminal: "T-1002", details: "PD-9003", bank: "B-A", status: "completed",       source: "SMS",  payTime: "00:48", commissionUsdt: 11.03,dispute: false },
+  { id: "PI-24008", date: "27.04 12:50", amount: 6700,  currency: "RUB", merchant: "Casino24",  merchantOrder: "c24-509", terminal: "T-1001", details: "PD-9001", bank: "B-A", status: "expired",         source: "—",    payTime: "—",     commissionUsdt: 0,    dispute: false,
+    timeline: [
+      { ts: "12:50:00", event: "created",   label: "Заявка создана" },
+      { ts: "12:50:01", event: "assigned",  label: "Закреплён реквизит PD-9001" },
+      { ts: "12:50:02", event: "waiting",   label: "Ожидание оплаты" },
+      { ts: "13:05:00", event: "expired",   label: "Истекло время оплаты (15 мин)" },
+    ],
+  },
+  { id: "PI-24009", date: "27.04 12:22", amount: 11200, currency: "RUB", merchant: "BetCity",   merchantOrder: "bc-9802", terminal: "T-1002", details: "PD-9003", bank: "B-A", status: "completed",       source: "SMS",  payTime: "00:25", commissionUsdt: 2.42, dispute: false },
+  { id: "PI-24010", date: "27.04 11:48", amount: 4800,  currency: "RUB", merchant: "MaxBet",    merchantOrder: "mb-1230", terminal: "T-1001", details: "PD-9001", bank: "B-A", status: "completed",       source: "Push", payTime: "00:31", commissionUsdt: 1.04, dispute: false },
+  { id: "PI-24011", date: "27.04 11:32", amount: 2100,  currency: "RUB", merchant: "MaxBet",    merchantOrder: "mb-1229", terminal: "T-1001", details: "PD-9001", bank: "B-A", status: "failed",          source: "—",    payTime: "—",     commissionUsdt: 0,    dispute: false,
+    timeline: [
+      { ts: "11:32:00", event: "created",   label: "Заявка создана" },
+      { ts: "11:32:00", event: "matching",  label: "Поиск реквизита" },
+      { ts: "11:32:02", event: "no-match",  label: "Нет подходящих реквизитов: cooldown PD-9001" },
+      { ts: "11:32:02", event: "failed",    label: "Заявка отклонена системой" },
+    ],
+  },
+];
+
+// ─── PayOut заявки ──────────────────────────────────────────────────────────
+const PAY_OUT = [
+  // free pool — другие трейдеры тоже видят
+  { id: "PO-55021", date: "27.04 14:34", amount: 18000, currency: "RUB", merchant: "BetCity",  customerBank: "B-A", customerTarget: "+7 911 111-22-33", customerName: "Иванов И. И.",   status: "free",         takenBy: null,    deadlineMin: 15, commissionUsdt: 3.89, proof: "none",   timeline: [
+      { ts: "14:34:00", event: "created", label: "Заявка от мерчанта BetCity, в пуле свободных выплат" },
+    ],
+  },
+  { id: "PO-55020", date: "27.04 14:18", amount: 42500, currency: "RUB", merchant: "Casino24", customerBank: "B-B", customerTarget: "+7 911 222-33-44", customerName: "Петров А. А.",   status: "in-progress",  takenBy: "TR-1042", deadlineMin: 8, commissionUsdt: 9.20, proof: "none",   timeline: [
+      { ts: "14:18:00", event: "created",     label: "Заявка от мерчанта Casino24" },
+      { ts: "14:24:11", event: "claimed",     label: "Взята в работу трейдером (вы)" },
+    ],
+  },
+  { id: "PO-55019", date: "27.04 14:02", amount: 7800,  currency: "RUB", merchant: "BetCity",  customerBank: "B-A", customerTarget: "+7 911 333-44-55", customerName: "Сидоров К.",     status: "free",         takenBy: null,    deadlineMin: 15, commissionUsdt: 1.69, proof: "none" },
+  { id: "PO-55018", date: "27.04 13:54", amount: 25000, currency: "RUB", merchant: "MaxBet",   customerBank: "B-A", customerTarget: "+7 911 444-55-66", customerName: "Кузнецов В.",    status: "waiting-review", takenBy: "TR-1042", deadlineMin: 0, commissionUsdt: 5.41, proof: "uploaded", proofTime: "13:58:42",
+    timeline: [
+      { ts: "13:54:00", event: "created",        label: "Заявка от мерчанта MaxBet" },
+      { ts: "13:55:12", event: "claimed",        label: "Взята в работу трейдером (вы)" },
+      { ts: "13:58:40", event: "transfer-done",  label: "Перевод выполнен" },
+      { ts: "13:58:42", event: "proof-uploaded", label: "Чек загружен, ожидает проверки саппорта" },
+    ],
+  },
+  { id: "PO-55017", date: "27.04 13:30", amount: 9000,  currency: "RUB", merchant: "BetCity",  customerBank: "B-B", customerTarget: "+7 911 555-66-77", customerName: "Морозов А.",     status: "completed",    takenBy: "TR-1042", deadlineMin: 0, commissionUsdt: 1.95, proof: "uploaded", proofTime: "13:34:11" },
+  { id: "PO-55016", date: "27.04 13:12", amount: 14500, currency: "RUB", merchant: "Casino24", customerBank: "B-A", customerTarget: "+7 911 666-77-88", customerName: "Орлов П.",       status: "completed",    takenBy: "TR-1042", deadlineMin: 0, commissionUsdt: 3.14, proof: "uploaded" },
+  { id: "PO-55015", date: "27.04 12:54", amount: 6500,  currency: "RUB", merchant: "MaxBet",   customerBank: "B-C", customerTarget: "+7 911 777-88-99", customerName: "Власов Д.",      status: "returned",     takenBy: null,    deadlineMin: 15, commissionUsdt: 0,    proof: "none",
+    timeline: [
+      { ts: "12:54:00", event: "created",   label: "Заявка от мерчанта MaxBet" },
+      { ts: "12:55:30", event: "claimed",   label: "Взята в работу TR-1058" },
+      { ts: "13:10:30", event: "expired",   label: "Не выполнена за 15 мин — возврат в пул" },
+      { ts: "13:10:30", event: "rating",    label: "TR-1058: рейтинг −0.05" },
+    ],
+  },
+  { id: "PO-55014", date: "27.04 12:30", amount: 32000, currency: "RUB", merchant: "BetCity",  customerBank: "B-A", customerTarget: "+7 911 888-99-00", customerName: "Соколов Е.",     status: "rejected",     takenBy: "TR-1042", deadlineMin: 0, commissionUsdt: 0,    proof: "rejected", proofTime: "12:38:00",
+    timeline: [
+      { ts: "12:30:00", event: "created",         label: "Заявка от мерчанта BetCity" },
+      { ts: "12:31:14", event: "claimed",         label: "Взята в работу" },
+      { ts: "12:37:55", event: "proof-uploaded",  label: "Чек загружен" },
+      { ts: "12:38:00", event: "proof-rejected",  label: "Саппорт: чек не читается, отправлено на доработку" },
+    ],
+  },
+  { id: "PO-55013", date: "27.04 12:08", amount: 11800, currency: "RUB", merchant: "Casino24", customerBank: "B-A", customerTarget: "+7 911 999-00-11", customerName: "Лебедев И.",     status: "disputed",     takenBy: "TR-1042", deadlineMin: 0, commissionUsdt: 0,    proof: "uploaded",
+    timeline: [
+      { ts: "12:08:00", event: "created",        label: "Заявка от мерчанта Casino24" },
+      { ts: "12:09:22", event: "claimed",        label: "Взята в работу" },
+      { ts: "12:14:55", event: "proof-uploaded", label: "Чек загружен" },
+      { ts: "12:15:30", event: "completed",      label: "Подтверждена саппортом" },
+      { ts: "26.04 16:21", event: "dispute-opened", label: "Мерчант открыл спор: «клиент денег не получил»" },
+    ],
+  },
+];
+
+// ─── Финансовые движения (рабочий + страховой + начисления) ────────────────
+const LEDGER = [
+  { id: "L-90121", ts: "27.04 14:22", account: "working",   type: "payin-deduction", orderId: "PI-24001", amountUsdt: -162.34, label: "PayIn: списание эквивалента (15 000 ₽)" },
+  { id: "L-90122", ts: "27.04 14:22", account: "working",   type: "payin-payout-back",orderId: "PI-24001",amountUsdt: +159.10, label: "PayIn: зачисление 15 000 ₽ × тариф 98%" },
+  { id: "L-90123", ts: "27.04 14:22", account: "working",   type: "commission",      orderId: "PI-24001", amountUsdt: +3.24,   label: "Комиссия трейдера 2.0%" },
+  { id: "L-90124", ts: "27.04 14:18", account: "working",   type: "payout-credit",   orderId: "PO-55020", amountUsdt: +459.96, label: "PayOut: зачисление 42 500 ₽" },
+  { id: "L-90125", ts: "27.04 14:18", account: "working",   type: "commission",      orderId: "PO-55020", amountUsdt: +9.20,   label: "Комиссия трейдера 2.0%" },
+  { id: "L-90126", ts: "27.04 13:30", account: "working",   type: "payout-credit",   orderId: "PO-55017", amountUsdt: +97.40,  label: "PayOut: зачисление 9 000 ₽" },
+  { id: "L-90127", ts: "27.04 13:30", account: "working",   type: "commission",      orderId: "PO-55017", amountUsdt: +1.95,   label: "Комиссия трейдера 2.0%" },
+  { id: "L-90128", ts: "27.04 12:30", account: "insurance", type: "fine",            orderId: "PO-55014", amountUsdt: -8.00,   label: "Штраф: проигнорирован чек" },
+  { id: "L-90129", ts: "27.04 12:08", account: "insurance", type: "freeze",          orderId: "PO-55013", amountUsdt: -180.00, label: "Заморозка по спору DSP-440" },
+  { id: "L-90130", ts: "27.04 09:00", account: "working",   type: "topup",           orderId: null,        amountUsdt: +500.00, label: "Пополнение рабочего баланса (админ)" },
+  { id: "L-90131", ts: "26.04 18:42", account: "working",   type: "payin-deduction", orderId: "PI-23998", amountUsdt: -54.10,  label: "PayIn: списание эквивалента (5 000 ₽)" },
+  { id: "L-90132", ts: "26.04 18:42", account: "working",   type: "payin-payout-back",orderId: "PI-23998",amountUsdt: +53.02,  label: "PayIn: зачисление" },
+  { id: "L-90133", ts: "25.04 11:14", account: "insurance", type: "topup",           orderId: null,        amountUsdt: +1000.00,label: "Пополнение страхового депозита (админ)" },
+  { id: "L-90134", ts: "24.04 16:08", account: "insurance", type: "release",         orderId: "PO-54998", amountUsdt: +120.00, label: "Снятие заморозки по спору DSP-438 (резолюция)" },
+];
+
+// ─── Споры ──────────────────────────────────────────────────────────────────
+const DISPUTES = [
+  {
+    id: "DSP-441",
+    opened: "27.04 11:02",
+    order: "PI-24005",
+    orderType: "PayIn",
+    amount: 89200,
+    merchant: "Casino24",
+    customer: "Customer #10028",
+    status: "waiting-trader",
+    sla: "23ч 12м",
+    deadline: "28.04 11:02",
+    reason: "Клиент: оплатил, услугу не получил",
+    chat: [
+      { from: "merchant",  ts: "27.04 11:02", text: "Клиент утверждает, что оплатил, но баланс не пополнился. Прикладываю чек клиента." },
+      { from: "merchant",  ts: "27.04 11:02", attach: "client_receipt.png" },
+      { from: "support",   ts: "27.04 12:18", text: "Запрашиваю выписку по реквизиту PD-9003 за 13:30–14:00." },
+    ],
+  },
+  {
+    id: "DSP-440",
+    opened: "26.04 16:21",
+    order: "PO-55013",
+    orderType: "PayOut",
+    amount: 11800,
+    merchant: "Casino24",
+    customer: "Customer #11006",
+    status: "waiting-admin",
+    sla: "8ч 04м",
+    deadline: "28.04 16:21",
+    reason: "Клиент: денег не получил",
+    chat: [
+      { from: "merchant",  ts: "26.04 16:21", text: "Клиент пишет, что выплата не пришла на телефон." },
+      { from: "trader",    ts: "27.04 09:40", text: "Перевод выполнен в 12:14:55. Прикладываю выписку из приложения банка." },
+      { from: "trader",    ts: "27.04 09:40", attach: "trader_bank_app.jpg" },
+    ],
+  },
+  {
+    id: "DSP-438",
+    opened: "25.04 14:30",
+    order: "PO-54998",
+    orderType: "PayOut",
+    amount: 33000,
+    merchant: "BetCity",
+    customer: "Customer #10912",
+    status: "resolved",
+    sla: "—",
+    deadline: "—",
+    reason: "Резолюция в пользу трейдера",
+    decision: "Подтверждено: выплата зачислена. Заморозка 120 USDT снята.",
+    chat: [
+      { from: "merchant",  ts: "25.04 14:30", text: "Клиент жалуется на отсутствие зачисления." },
+      { from: "trader",    ts: "25.04 18:00", text: "Прикладываю чек СБП и выписку." },
+      { from: "support",   ts: "26.04 18:00", text: "Резолюция: в пользу трейдера. Заморозка снимается." },
+    ],
+  },
+  {
+    id: "DSP-437",
+    opened: "24.04 19:00",
+    order: "PI-23901",
+    orderType: "PayIn",
+    amount: 9900,
+    merchant: "MaxBet",
+    customer: "Customer #10822",
+    status: "rejected",
+    sla: "—",
+    deadline: "—",
+    reason: "Подозрение на мошенничество клиента",
+    decision: "Спор отклонён. Клиент мерчанта прислал поддельный чек.",
+    chat: [],
+  },
+];
+
+// ─── Тариф (read-only) ──────────────────────────────────────────────────────
+const TARIFF = {
+  name: "Стандарт",
+  effectiveSince: "12.03.2024",
+  payInRateMerchant: 9.0,    // % с мерчанта
+  payInRateTrader: 7.5,      // % трейдеру (средняя)
+  platformShare: 1.5,
+  payOutRateMerchant: 4.5,
+  payOutRateTrader: 3.5,     // средняя
+  minCommissionUsdt: 0.30,
+  payInMethods: [
+    { method: "sbp",         label: "СБП",                  rate: 7.5, min: 100,  max: 100000, notes: "Базовый метод, без ограничений" },
+    { method: "card",        label: "Карта (номер)",        rate: 7.8, min: 500,  max: 200000, notes: "—" },
+    { method: "c2c",         label: "Card-to-Card",         rate: 8.0, min: 1000, max: 150000, notes: "Перевод по номеру карты" },
+    { method: "phone",       label: "По номеру телефона",   rate: 7.5, min: 100,  max: 100000, notes: "СБП по телефону" },
+    { method: "account",     label: "По расчётному счёту",  rate: 7.0, min: 5000, max: 500000, notes: "Только для верифицированных" },
+  ],
+  payOutMethods: [
+    { method: "sbp",         label: "СБП",                  rate: 3.5, min: 100,  max: 100000, notes: "—" },
+    { method: "card",        label: "Карта (номер)",        rate: 3.8, min: 500,  max: 150000, notes: "—" },
+    { method: "c2c",         label: "Card-to-Card",         rate: 4.0, min: 1000, max: 150000, notes: "—" },
+    { method: "phone",       label: "По номеру телефона",   rate: 3.5, min: 100,  max: 100000, notes: "СБП по телефону" },
+    { method: "account",     label: "По расчётному счёту",  rate: 3.2, min: 5000, max: 500000, notes: "Только для верифицированных" },
+  ],
+  banks: [
+    { bank: "B-A", payInTrader: 7.5, payOutTrader: 3.5, min: 100, max: 200000, notes: "—" },
+    { bank: "B-B", payInTrader: 7.8, payOutTrader: 3.6, min: 100, max: 150000, notes: "Повышенная ставка по PayIn 09:00–21:00" },
+    { bank: "B-C", payInTrader: 2.0, payOutTrader: 1.8, min: 100, max: 100000, notes: "—" },
+    { bank: "B-D", payInTrader: 1.8, payOutTrader: 1.6, min: 100, max: 80000,  notes: "Только PayIn" },
+  ],
+};
+
+// ─── Status maps ────────────────────────────────────────────────────────────
+const TERMINAL_STATUS = {
+  online:  { label: "Online",       tone: "ok" },
+  offline: { label: "Offline",      tone: "bad" },
+  blocked: { label: "Заблокирован", tone: "bad" },
+  outdated:{ label: "Нужно обновление", tone: "warn" },
+};
+
+const PD_STATUS = {
+  active:           { label: "Активен",            tone: "ok" },
+  "trader-off":     { label: "Выкл. трейдером",    tone: "neutral" },
+  "admin-off":      { label: "Выкл. админом",      tone: "neutral" },
+  "terminal-offline":{label: "Терминал offline",   tone: "warn" },
+  cooldown:         { label: "Cooldown",           tone: "warn" },
+  "limit-exceeded": { label: "Лимит исчерпан",     tone: "warn" },
+  blocked:          { label: "Заблокирован",       tone: "bad"  },
+};
+
+const PAY_IN_STATUS = {
+  created:           { label: "Создана",          tone: "neutral" },
+  matching:          { label: "Ищем реквизит",    tone: "info" },
+  "waiting-payment": { label: "Ожидает оплаты",   tone: "warn" },
+  completed:         { label: "Успешно",          tone: "ok" },
+  expired:           { label: "Истекло время",    tone: "neutral" },
+  failed:            { label: "Ошибка",           tone: "bad" },
+  disputed:          { label: "Спор",             tone: "bad" },
+  cancelled:         { label: "Отменена",         tone: "neutral" },
+};
+
+const PAY_OUT_STATUS = {
+  free:             { label: "Свободна",          tone: "info" },
+  "in-progress":    { label: "В работе",          tone: "warn" },
+  "waiting-review": { label: "Проверка чека",     tone: "info" },
+  completed:        { label: "Выполнена",          tone: "ok"  },
+  rejected:         { label: "Отклонена",         tone: "bad" },
+  returned:         { label: "Возврат в пул",     tone: "warn" },
+  disputed:         { label: "Спор",              tone: "bad" },
+  cancelled:        { label: "Отменена",          tone: "neutral" },
+};
+
+const DISPUTE_STATUS = {
+  open:             { label: "Открыт",            tone: "warn" },
+  "waiting-trader": { label: "Ждём трейдера",     tone: "warn" },
+  "waiting-admin":  { label: "Ждём саппорт",      tone: "info" },
+  resolved:         { label: "Подтверждён",       tone: "ok"   },
+  rejected:         { label: "Отклонён",          tone: "neutral" },
+};
+
+const LEDGER_TYPE = {
+  topup:               { label: "Пополнение",       tone: "ok"   },
+  withdraw:            { label: "Вывод",            tone: "neutral" },
+  "payin-deduction":   { label: "PayIn списание",   tone: "neutral" },
+  "payin-payout-back": { label: "PayIn зачисление", tone: "info" },
+  "payout-credit":     { label: "PayOut зачисление",tone: "info" },
+  commission:          { label: "Комиссия",         tone: "ok"   },
+  fine:                { label: "Штраф",            tone: "bad"  },
+  freeze:              { label: "Заморозка",        tone: "warn" },
+  release:             { label: "Снятие заморозки", tone: "ok"   },
+  correction:          { label: "Корректировка",    tone: "neutral" },
+};
+
+// ─── Navigation ─────────────────────────────────────────────────────────────
+const NAV = [
+  { id: "dashboard",  label: "Главная",     icon: "◇" },
+  { id: "payin",      label: "Платежи",     icon: "↘", count: PAY_IN.filter((o) => ["waiting-payment","matching","disputed"].includes(o.status)).length },
+  { id: "payout",     label: "Выплаты",     icon: "↗", count: PAY_OUT.filter((o) => ["free","in-progress","waiting-review","disputed"].includes(o.status)).length },
+  { id: "disputes",   label: "Споры",       icon: "✕", count: DISPUTES.filter((d) => ["open","waiting-trader"].includes(d.status)).length },
+  { id: "terminals",  label: "Терминалы",   icon: "▣", count: TERMINALS.filter((t) => t.status === "online").length },
+  { id: "details",    label: "Реквизиты",   icon: "≡", count: PAYMENT_DETAILS.filter((d) => d.status === "active").length },
+  { id: "finance",    label: "Финансы",     icon: "₿" },
+  { id: "tariff",     label: "Тариф",       icon: "%" },
+  { id: "profile",    label: "Настройки",   icon: "◉" },
+];
+
+const NAV_GROUPS = [
+  { label: "",          ids: ["dashboard"] },
+  { label: "Работа",    ids: ["payin", "payout", "disputes", "finance"] },
+  { label: "Инфраструктура", ids: ["terminals", "details"] },
+  { label: "Аккаунт",   ids: ["tariff", "profile"] },
+];
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function fmtMoney(v, currency = "RUB") {
+  const sign = v < 0 ? "−" : "";
+  const abs = Math.abs(v);
+  let formatted;
+  if (currency === "USDT") {
+    formatted = abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  } else {
+    formatted = Math.round(abs).toLocaleString("ru-RU");
+  }
+  const symbol = currency === "RUB" ? "₽" : currency === "USDT" ? "USDT" : currency;
+  return (
+    <>
+      {sign + formatted}
+      <span className="ccy"> {symbol}</span>
+    </>
+  );
+}
+
+function fmtPct(v) {
+  return (v * 100).toFixed(0) + "%";
+}
+
+function bankName(id) {
+  const b = BANKS.find((x) => x.id === id);
+  return b ? b.name : id;
+}
+
+Object.assign(window, {
+  ME, BANKS, BALANCES, RATING,
+  TERMINALS, PAYMENT_DETAILS,
+  PAY_IN, PAY_OUT, LEDGER, DISPUTES, TARIFF,
+  TERMINAL_STATUS, PD_STATUS, PAY_IN_STATUS, PAY_OUT_STATUS,
+  DISPUTE_STATUS, LEDGER_TYPE,
+  NAV, NAV_GROUPS,
+  fmtMoney, fmtPct, bankName,
+});
+
+</script>
+<script type="text/babel" data-presets="react">
+/* inlined: trader-sections-1.jsx */
+// Trader app — sections part 1: Dashboard, PayIn, PayOut, Terminals, Реквизиты
+// Соответствует ТЗ v4 (M.Novikov, 30.04.2026)
+
+const METHOD_LABEL = {
+  sbp: "СБП",
+  card: "Карта",
+  c2c: "Card-to-Card",
+  phone: "По номеру телефона",
+  account: "Расчётный счёт",
+};
+
+// ─── helpers ─────────────────────────────────────────────────────────────
+function Bar({ v, w = 64 }) {
+  const pct = Math.max(0, Math.min(1, v));
+  const tone = pct > 0.85 ? "bad" : pct > 0.6 ? "warn" : "ok";
+  return (
+    <span className="bar">
+      <span className={"bar__fill bar__fill--" + tone} style={{ width: w }}>
+        <i style={{ width: pct * 100 + "%" }} />
+      </span>
+      <span className="bar__label mono">{Math.round(pct * 100)}%</span>
+    </span>
+  );
+}
+
+function MoneyBig({ rub, usdt }) {
+  return (
+    <div className="money-big">
+      <div className="money-big__usdt">{fmtMoney(usdt, "USDT")}</div>
+      <div className="money-big__rub muted">≈ {fmtMoney(rub, "RUB")}</div>
+    </div>
+  );
+}
+
+function tone(v) {
+  if (v > 0.85) return "bad";
+  if (v > 0.6) return "warn";
+  return "ok";
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────
+function TraderDashboard({ go }) {
+  const freePO = PAY_OUT.filter((o) => o.status === "free");
+  const myActivePO = PAY_OUT.filter((o) => o.takenBy === ME.id && ["in-progress","waiting-review"].includes(o.status));
+  const recentPI = PAY_IN.slice(0, 5);
+  const openDisputes = DISPUTES.filter((d) => ["open","waiting-trader"].includes(d.status));
+
+  return (
+    <>
+      <PageHead
+        title={"Здравствуйте, " + ME.name.split(" ")[1]}
+        sub="Сводка за сегодня. Сначала разберите свободные Выплаты — на них быстрее всего идёт оборот."
+        actions={<>
+          <Btn variant="ghost" onClick={() => go("finance")}>Финансы</Btn>
+          <Btn variant="primary" onClick={() => go("payout")}>В очередь Выплат</Btn>
+        </>}
+      />
+
+      {/* Балансы */}
+      <div className="hero-grid hero-grid--3">
+        <div className="hero-card hero-card--accent">
+          <div className="hero-card__label">Рабочий баланс</div>
+          <div className="hero-card__value">{fmtMoney(BALANCES.working.amount, "USDT")}</div>
+          <div className="hero-card__sub"><b>+ {fmtMoney(BALANCES.working.frozenUsdt, "USDT")}</b> заблокировано</div>
+          <div className="hero-card__actions">
+            <Btn variant="primary" size="sm" onClick={() => go("finance")}>Все движения →</Btn>
+          </div>
+        </div>
+        {(() => {
+          const cardsBalance = PAYMENT_DETAILS.reduce((s, p) => s + (p.balanceRub || 0), 0);
+          const expectedRub = BALANCES.working.frozenUsdt * ME.usdtRate;
+          return (
+            <div className="hero-card">
+              <div className="hero-card__label">Сумма на картах</div>
+              <div className="hero-card__value">{fmtMoney(cardsBalance, "RUB")}</div>
+              <div className="hero-card__sub"><b>+ {fmtMoney(expectedRub, "RUB")}</b> ожидается</div>
+              <div className="hero-card__actions">
+                <Btn variant="primary" size="sm" onClick={() => go("payout")}>В Выплаты →</Btn>
+              </div>
+            </div>
+          );
+        })()}
+        <div className="hero-card">
+          <div className="hero-card__label">Страховой депозит</div>
+          <div className="hero-card__value">{fmtMoney(BALANCES.insurance.amount, "USDT")}</div>
+          <div className="hero-card__sub"><b>+ {fmtMoney(BALANCES.insurance.locked, "USDT")}</b> заморожено</div>
+        </div>
+      </div>
+
+      {/* Сегодня */}
+      <div className="stat-row">
+        <div className="stat">
+          <div className="stat__label">Платежи сегодня</div>
+          <div className="stat__value">{fmtMoney(BALANCES.todayPayInRub, "RUB")}</div>
+          <div className="stat__delta">{PAY_IN.filter((o) => o.status === "completed").length} успешных</div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">Выплаты сегодня</div>
+          <div className="stat__value">{fmtMoney(BALANCES.todayPayOutRub, "RUB")}</div>
+          <div className="stat__delta">{PAY_OUT.filter((o) => o.takenBy === ME.id && o.status === "completed").length} успешных</div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">Заработано</div>
+          <div className="stat__value">{fmtMoney(BALANCES.todayCommissionUsdt, "USDT")}</div>
+          <div className="stat__delta">≈ {fmtMoney(BALANCES.todayCommissionUsdt * ME.usdtRate, "RUB")}</div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">За месяц</div>
+          <div className="stat__value">{fmtMoney(BALANCES.monthCommissionUsdt, "USDT")}</div>
+          <div className="stat__delta">оборот ≈ {fmtMoney(BALANCES.monthPayInRub + BALANCES.monthPayOutRub, "RUB")}</div>
+        </div>
+      </div>
+
+      {/* Свободные выплаты */}
+      <Section
+        title={"Свободные выплаты · " + freePO.length + " в пуле"}
+        action={<Btn size="sm" variant="ghost" onClick={() => go("payout")}>Открыть очередь →</Btn>}
+      >
+        {freePO.length === 0 ? <Empty>Свободных выплат нет</Empty> : (
+          <div className="payout-feed">
+            {freePO.slice(0, 3).map((o) => (
+              <div key={o.id} className="payout-card">
+                <div className="payout-card__head">
+                  <span className="mono">{o.id}</span>
+                  <span className="payout-card__time mono">⏱ {o.deadlineMin} мин</span>
+                </div>
+                <div className="payout-card__amount">{fmtMoney(o.amount, "RUB")}</div>
+                <div className="payout-card__meta">
+                  <div><span className="muted">Куда:</span> <span className="mono">{o.customerTarget}</span></div>
+                  <div><span className="muted">Банк:</span> {bankName(o.customerBank)}</div>
+                  <div><span className="muted">Мерчант:</span> {o.merchant}</div>
+                </div>
+                <div className="payout-card__actions">
+                  <Btn variant="primary" size="sm" onClick={() => go("payout")}>Взять</Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => go("payout")}>Не могу</Btn>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
+
+      <div className="dash-grid">
+        <Section
+          title={"Мои выплаты в работе · " + myActivePO.length}
+          action={<Btn size="sm" variant="ghost" onClick={() => go("payout")}>Все →</Btn>}
+        >
+          {myActivePO.length === 0 ? <Empty>Нет выплат в работе</Empty> : (
+            <table className="table table--inset">
+              <thead><tr><th>ID</th><th className="num">Сумма</th><th>Статус</th><th>Куда</th></tr></thead>
+              <tbody>
+                {myActivePO.map((o) => (
+                  <tr key={o.id}>
+                    <td className="mono">{o.id}</td>
+                    <td className="num">{fmtMoney(o.amount, "RUB")}</td>
+                    <td><StatusPill map={PAY_OUT_STATUS} value={o.status} /></td>
+                    <td className="mono">{o.customerTarget}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Section>
+
+        <Section
+          title={"Последние платежи · " + recentPI.length}
+          action={<Btn size="sm" variant="ghost" onClick={() => go("payin")}>Все →</Btn>}
+        >
+          <table className="table table--inset">
+            <thead><tr><th>ID</th><th className="num">Сумма</th><th>Статус</th><th className="num">Время</th></tr></thead>
+            <tbody>
+              {recentPI.map((o) => (
+                <tr key={o.id}>
+                  <td className="mono">{o.id}{o.dispute && <span className="dot-dispute"> ●</span>}</td>
+                  <td className="num">{fmtMoney(o.amount, "RUB")}</td>
+                  <td><StatusPill map={PAY_IN_STATUS} value={o.status} /></td>
+                  <td className="num mono muted">{o.payTime}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Section>
+      </div>
+
+      <div className="dash-grid">
+        <Section title="Терминалы" action={<Btn size="sm" variant="ghost" onClick={() => go("terminals")}>Все →</Btn>}>
+          <table className="table table--inset">
+            <thead><tr><th>ID</th><th>Устройство</th><th>Статус</th><th className="num">Реквизиты</th><th>Активность</th></tr></thead>
+            <tbody>
+              {TERMINALS.map((t) => (
+                <tr key={t.id}>
+                  <td className="mono">{t.id}</td>
+                  <td>{t.name}</td>
+                  <td><StatusPill map={TERMINAL_STATUS} value={t.status} /></td>
+                  <td className="num">{t.detailsCount}</td>
+                  <td className="muted mono">{t.lastHeartbeat}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Section>
+
+        <Section
+          title={"Открытые споры · " + openDisputes.length}
+          action={<Btn size="sm" variant="ghost" onClick={() => go("disputes")}>Все →</Btn>}
+        >
+          {openDisputes.length === 0 ? <Empty>Открытых споров нет</Empty> : (
+            <table className="table table--inset">
+              <thead><tr><th>ID</th><th>Ордер</th><th className="num">Сумма</th><th>Статус</th><th className="muted">SLA</th></tr></thead>
+              <tbody>
+                {openDisputes.map((d) => (
+                  <tr key={d.id}>
+                    <td className="mono">{d.id}</td>
+                    <td className="mono">{d.order}</td>
+                    <td className="num">{fmtMoney(d.amount, "RUB")}</td>
+                    <td><StatusPill map={DISPUTE_STATUS} value={d.status} /></td>
+                    <td className="muted mono">{d.sla}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Section>
+      </div>
+    </>
+  );
+}
+
+// ─── PAYIN ────────────────────────────────────────────────────────────────
+function TraderPayIn({ initFilter }) {
+  const [filter, setFilter] = React.useState("all");
+  React.useEffect(() => {
+    if (initFilter && initFilter.value) setFilter(initFilter.value);
+  }, [initFilter && initFilter.key]);
+  const [openId, setOpenId] = React.useState(null);
+  const filters = [
+    { value: "all", label: "Все", count: PAY_IN.length },
+    { value: "waiting-payment", label: "Ждут оплаты", count: PAY_IN.filter((o) => o.status === "waiting-payment").length },
+    { value: "completed", label: "Успешные", count: PAY_IN.filter((o) => o.status === "completed").length },
+    { value: "disputed", label: "Спор", count: PAY_IN.filter((o) => o.status === "disputed").length },
+    { value: "failed", label: "Не выполнены", count: PAY_IN.filter((o) => ["failed","expired"].includes(o.status)).length },
+  ];
+  const visible = PAY_IN.filter((o) => {
+    if (filter === "all") return true;
+    if (filter === "failed") return ["failed","expired"].includes(o.status);
+    return o.status === filter;
+  });
+  const open = PAY_IN.find((o) => o.id === openId);
+
+  return (
+    <>
+      <PageHead
+        title="Платежи (PayIn)"
+        sub="Заявки от мерчантов: клиент платит на ваши реквизиты, система автоматически распознаёт SMS/Push."
+        actions={<Btn variant="ghost"><span className="mono">↧</span> Экспорт CSV</Btn>}
+      />
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>ID заявки</th>
+              <th>Статус</th>
+              <th className="num">Сумма</th>
+              <th className="num">Комиссия</th>
+              <th className="num">Курс</th>
+              <th>Реквизит</th>
+              <th>Метод</th>
+              <th>Создана</th>
+              <th className="num">Время</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((o) => {
+              const pd = PAYMENT_DETAILS.find((p) => p.id === o.details);
+              const rate = ME.usdtRate;
+              const usdt = o.amount / rate;
+              const fee = usdt * 0.02;
+              const isOk = o.status === "completed";
+              return (
+              <tr key={o.id} className={openId === o.id ? "is-selected" : ""} onClick={() => setOpenId(o.id)}>
+                <td className="mono">{o.id}{o.dispute && <span className="dot-dispute"> ●</span>}</td>
+                <td><StatusPill map={PAY_IN_STATUS} value={o.status} /></td>
+                <td className="num">
+                  {fmtMoney(o.amount, "RUB")}
+                  <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{usdt.toFixed(2)} USDT</div>
+                </td>
+                <td className="num mono">{isOk ? fee.toFixed(2) : <span className="muted">—</span>}</td>
+                <td className="num mono muted">{rate.toFixed(2)}</td>
+                <td>
+                  {pd ? (
+                    <>
+                      <div>{pd.holder}</div>
+                      <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{pd.target}</div>
+                    </>
+                  ) : <span className="mono">{o.details}</span>}
+                </td>
+                <td>{pd ? (METHOD_LABEL[pd.method] || pd.method) : <span className="muted">—</span>}<div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{bankName(o.bank)}</div></td>
+                <td className="mono">{o.date}</td>
+                <td className="num mono muted">{o.payTime}</td>
+              </tr>
+            );})}
+          </tbody>
+        </table>
+        <div className="table-foot">Показано <strong>{visible.length}</strong> из <strong>{PAY_IN.length}</strong></div>
+      </div>
+
+      {open && (
+        <Drawer
+          title="Заявка на платёж"
+          id={open.id}
+          status={open.status}
+          statusMap={PAY_IN_STATUS}
+          onClose={() => setOpenId(null)}
+          wide
+          extraTags={open.expiresAt && <span className="dispute-sla mono">⏱ истечёт {open.expiresAt}</span>}
+          footer={<>
+            <Btn variant="ghost">Не вижу платёж — открыть спор</Btn>
+            <span className="spacer" />
+            {open.status === "completed" ? (
+              <Btn variant="ghost">Скачать чек</Btn>
+            ) : open.status === "waiting-payment" ? (
+              <Btn variant="ok">Подтвердить вручную</Btn>
+            ) : null}
+          </>}
+        >
+          <Section title="Сводка">
+            <KV items={[
+              ["Сумма", <strong>{fmtMoney(open.amount, "RUB")}</strong>],
+              ["Эквивалент в USDT", <span className="mono">≈ {fmtMoney(open.amount / ME.usdtRate, "USDT")}</span>],
+              ["Мерчант", <>{open.merchant} <span className="muted mono"> · заказ {open.merchantOrder}</span></>],
+              ["Создана", <span className="mono">{open.date}</span>],
+              ["Время до подтверждения", <span className="mono">{open.payTime}</span>],
+              ["Комиссия трейдера", <strong>{fmtMoney(open.commissionUsdt, "USDT")}</strong>],
+            ]} />
+          </Section>
+
+          <Section title="Куда поступил платёж">
+            <KV items={[
+              ["Терминал", <span className="mono">{open.terminal}</span>],
+              ["Реквизит", <span className="mono">{open.details}</span>],
+              ["Банк", <strong>{bankName(open.bank)}</strong>],
+            ]} />
+          </Section>
+
+          <Section title="SMS / Push от банка">
+            {open.source !== "—" ? (
+              <Note tone="info">
+                <div className="mono" style={{ fontSize: 12, marginBottom: 6 }}>{open.source} · {bankName(open.bank)} · {open.date}</div>
+                <div>«Поступление {fmtMoney(open.amount, "RUB")}. Баланс счёта: 184 220,00 ₽. {bankName(open.bank)}»</div>
+              </Note>
+            ) : <Empty>Сообщение от банка не получено</Empty>}
+          </Section>
+
+          {open.timeline && (
+            <Section title="История статусов">
+              <Timeline items={open.timeline.map((t) => ({ time: t.ts, text: t.label }))} />
+            </Section>
+          )}
+        </Drawer>
+      )}
+    </>
+  );
+}
+
+// ─── PAYOUT ───────────────────────────────────────────────────────────────
+function TraderPayOut({ initFilter }) {
+  const [filter, setFilter] = React.useState("free");
+  React.useEffect(() => {
+    if (initFilter && initFilter.value) setFilter(initFilter.value);
+  }, [initFilter && initFilter.key]);
+  const [openId, setOpenId] = React.useState(null);
+  const filters = [
+    { value: "free", label: "Свободные", count: PAY_OUT.filter((o) => o.status === "free").length },
+    { value: "mine", label: "Мои в работе", count: PAY_OUT.filter((o) => o.takenBy === ME.id && ["in-progress","waiting-review"].includes(o.status)).length },
+    { value: "completed", label: "Выполненные", count: PAY_OUT.filter((o) => o.takenBy === ME.id && o.status === "completed").length },
+    { value: "rejected", label: "Отклонённые", count: PAY_OUT.filter((o) => o.takenBy === ME.id && o.status === "rejected").length },
+    { value: "disputed", label: "Спор", count: PAY_OUT.filter((o) => o.status === "disputed").length },
+    { value: "all", label: "Все", count: PAY_OUT.length },
+  ];
+  const visible = PAY_OUT.filter((o) => {
+    if (filter === "all") return true;
+    if (filter === "free") return o.status === "free";
+    if (filter === "mine") return o.takenBy === ME.id && ["in-progress","waiting-review"].includes(o.status);
+    if (filter === "completed") return o.takenBy === ME.id && o.status === "completed";
+    if (filter === "rejected") return o.takenBy === ME.id && o.status === "rejected";
+    if (filter === "disputed") return o.status === "disputed";
+    return true;
+  });
+  const open = PAY_OUT.find((o) => o.id === openId);
+
+  return (
+    <>
+      <PageHead
+        title="Выплаты (PayOut)"
+        sub="Свободные заявки попадают в общий пул. Возьмите → переведите клиенту → загрузите чек. На исполнение даётся 15 минут."
+        actions={<Btn variant="ghost"><span className="mono">↧</span> Экспорт CSV</Btn>}
+      />
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Создана</th>
+              <th style={{ width: 110 }}>Статус</th>
+              <th className="num">Сумма</th>
+              <th className="num">Курс</th>
+              <th className="num">Комиссия</th>
+              <th>Реквизит</th>
+              <th>Получатель</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((o) => {
+              const rate = ME.usdtRate;
+              const usdt = o.amount / rate;
+              const bankRow = TARIFF.banks.find((b) => b.bank === o.customerBank);
+              const ratePct = bankRow ? bankRow.payOutTrader : TARIFF.payOutRateTrader;
+              const fee = usdt * (ratePct / 100);
+              const isOk = o.status === "completed";
+              const showPd = isOk || o.status === "in-progress" || o.status === "waiting-review";
+              const myPd = PAYMENT_DETAILS.find((p) => p.bank === o.customerBank && p.status === "active") || PAYMENT_DETAILS.find((p) => p.bank === o.customerBank);
+              return (
+              <tr key={o.id} className={openId === o.id ? "is-selected" : ""} onClick={() => setOpenId(o.id)}>
+                <td className="mono">{o.id}</td>
+                <td className="mono">{o.date}</td>
+                <td><StatusPill map={PAY_OUT_STATUS} value={o.status} /></td>
+                <td className="num">
+                  {fmtMoney(o.amount, "RUB")}
+                  <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{usdt.toFixed(2)} USDT</div>
+                </td>
+                <td className="num mono muted">{rate.toFixed(2)}</td>
+                <td className="num mono">{fee.toFixed(2)}</td>
+                <td>
+                  {showPd && myPd ? (
+                    <>
+                      <div>{myPd.holder}</div>
+                      <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{myPd.target}</div>
+                    </>
+                  ) : <span className="muted">—</span>}
+                </td>
+                <td>
+                  <div><span className="muted">{bankName(o.customerBank)}</span> {o.customerName}</div>
+                  <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>{o.customerTarget}</div>
+                </td>
+                <td className="num">
+                  {o.status === "free" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+                      <Btn size="sm" variant="primary" onClick={(e) => { e.stopPropagation(); setOpenId(o.id); }}>Взять</Btn>
+                      <span className="mono muted" style={{ fontSize: 11 }}>⧖ {o.deadlineMin} мин</span>
+                    </div>
+                  )}
+                  {o.status === "in-progress" && o.takenBy === ME.id && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+                      <Btn size="sm" variant="ok" onClick={(e) => { e.stopPropagation(); setOpenId(o.id); }}>Чек</Btn>
+                      <span className="mono muted" style={{ fontSize: 11 }}>⧖ {o.deadlineMin} мин</span>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );})}
+          </tbody>
+        </table>
+        <div className="table-foot">Показано <strong>{visible.length}</strong> из <strong>{PAY_OUT.length}</strong></div>
+      </div>
+
+      {open && <PayOutDrawer order={open} onClose={() => setOpenId(null)} />}
+    </>
+  );
+}
+
+function PayOutDrawer({ order, onClose }) {
+  const isFree = order.status === "free";
+  const isMine = order.takenBy === ME.id;
+  const inWork = isMine && order.status === "in-progress";
+  const waitingReview = isMine && order.status === "waiting-review";
+
+  return (
+    <Drawer
+      title="Заявка на выплату"
+      id={order.id}
+      status={order.status}
+      statusMap={PAY_OUT_STATUS}
+      onClose={onClose}
+      wide
+      extraTags={(isFree || inWork) && <span className="dispute-sla mono">⏱ {order.deadlineMin} мин</span>}
+      footer={
+        isFree ? (
+          <>
+            <Btn variant="ghost" title="Заявка вернётся в пул, без штрафа но с уменьшением рейтинга">Не могу взять</Btn>
+            <span className="spacer" />
+            <Btn variant="primary">Взять в работу</Btn>
+          </>
+        ) : inWork ? (
+          <>
+            <Btn variant="ghost">Вернуть в пул (−0.05 рейтинга)</Btn>
+            <span className="spacer" />
+            <Btn variant="ok">Перевод сделан → загрузить чек</Btn>
+          </>
+        ) : waitingReview ? (
+          <>
+            <Btn variant="ghost">Открыть спор</Btn>
+            <span className="spacer" />
+            <Btn variant="ghost" disabled>Ждём проверки саппорта</Btn>
+          </>
+        ) : (
+          <>
+            <Btn variant="ghost">Открыть спор</Btn>
+            <span className="spacer" />
+            {order.proof === "uploaded" && <Btn variant="ghost">Скачать чек</Btn>}
+          </>
+        )
+      }
+    >
+      <Section title="Куда платить">
+        <KV items={[
+          ["Сумма к переводу", <strong>{fmtMoney(order.amount, "RUB")}</strong>],
+          ["Куда", <span className="mono"><strong>{order.customerTarget}</strong></span>],
+          ["Банк получателя", <strong>{bankName(order.customerBank)}</strong>],
+          ["Имя", order.customerName],
+          ["Мерчант", order.merchant],
+          ["Создана", <span className="mono">{order.date}</span>],
+        ]} />
+      </Section>
+
+      {isFree && (
+        <Note tone="warn">
+          <strong>Внимание.</strong> При взятии заявки на ваш рабочий баланс заморозятся ≈ {fmtMoney(order.amount / ME.usdtRate, "USDT")} до подтверждения чека саппортом. Если не успеете за 15 минут — заявка вернётся в пул и рейтинг −0.05.
+        </Note>
+      )}
+
+      <Section title="Расчёт">
+        <KV items={[
+          ["Эквивалент", <span className="mono">≈ {fmtMoney(order.amount / ME.usdtRate, "USDT")}</span>],
+          ["Тариф PayOut", "2.0%"],
+          ["Ваша комиссия", <strong>{fmtMoney(order.commissionUsdt, "USDT")}</strong>],
+        ]} />
+      </Section>
+
+      <Section title="Чек / подтверждение">
+        {order.proof === "uploaded" ? (
+          <PlaceholderImg label={"Чек по " + order.id + (order.proofTime ? " · " + order.proofTime : "")} h={160} />
+        ) : order.proof === "rejected" ? (
+          <Note tone="bad">Чек отклонён саппортом: «Не читается номер операции». Загрузите новый чек.</Note>
+        ) : inWork ? (
+          <div>
+            <PlaceholderImg label="Перетащите файл чека или нажмите «Загрузить»" h={120} />
+            <div style={{ marginTop: 8 }}><Btn variant="ghost" size="sm">📎 Загрузить чек</Btn></div>
+          </div>
+        ) : <Empty>Чек ещё не загружен</Empty>}
+      </Section>
+
+      {order.timeline && (
+        <Section title="История">
+          <Timeline items={order.timeline.map((t) => ({ time: t.ts, text: t.label }))} />
+        </Section>
+      )}
+    </Drawer>
+  );
+}
+
+// ─── TERMINALS ───────────────────────────────────────────────────────────
+function TraderTerminals() {
+  const [filter, setFilter] = React.useState("all");
+  const [openId, setOpenId] = React.useState(null);
+  const [showAdd, setShowAdd] = React.useState(false);
+  const filters = [
+    { value: "all", label: "Все", count: TERMINALS.length },
+    { value: "online", label: "Online", count: TERMINALS.filter((t) => t.status === "online").length },
+    { value: "offline", label: "Offline", count: TERMINALS.filter((t) => t.status === "offline").length },
+  ];
+  const visible = TERMINALS.filter((t) => filter === "all" || t.status === filter);
+  const open = TERMINALS.find((t) => t.id === openId);
+
+  return (
+    <>
+      <PageHead
+        title="Терминалы"
+        sub="Android-устройства с банковскими приложениями. Ловят SMS/Push, шлют heartbeat. Если терминал >5 мин offline — реквизиты автоматически отключаются."
+        actions={<Btn variant="primary" onClick={() => setShowAdd(true)}><span className="mono">＋</span> Привязать терминал</Btn>}
+      />
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr>
+            <th>ID</th><th>Устройство</th><th>SIM</th><th>Статус</th>
+            <th className="num">Заряд</th><th className="num">Версия</th>
+            <th>Heartbeat</th>
+            <th>Заметка</th>
+          </tr></thead>
+          <tbody>
+            {visible.map((t) => (
+              <tr key={t.id} className={openId === t.id ? "is-selected" : ""} onClick={() => setOpenId(t.id)}>
+                <td className="mono">{t.id}</td>
+                <td>{t.name}</td>
+                <td className="mono">{t.phone}</td>
+                <td><StatusPill map={TERMINAL_STATUS} value={t.status} /></td>
+                <td className="num">
+                  <span className={"battery " + (t.battery < 20 ? "battery--bad" : t.battery < 40 ? "battery--warn" : "battery--ok")}>
+                    {t.battery}%
+                  </span>
+                </td>
+                <td className="num mono">{t.appVersion}</td>
+                <td className="mono muted">{t.lastHeartbeat}</td>
+                <td className="muted">{t.notes || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {open && (
+        <Drawer
+          title="Терминал"
+          id={open.id}
+          status={open.status}
+          statusMap={TERMINAL_STATUS}
+          onClose={() => setOpenId(null)}
+          wide
+          footer={<>
+            <Btn variant="ghost">Перепарить (QR)</Btn>
+            <span className="spacer" />
+            {open.status === "online"
+              ? <Btn variant="danger">Закрыть терминал</Btn>
+              : <Btn variant="ok">Активировать</Btn>}
+          </>}
+        >
+          <Section title="Устройство">
+            <KV items={[
+              ["Модель", open.name],
+              ["SIM", <span className="mono">{open.phone}</span>],
+              ["Версия приложения", <span className="mono">{open.appVersion}</span>],
+              ["Заряд", <strong style={{ color: open.battery < 20 ? "var(--bad)" : open.battery < 40 ? "var(--warn)" : "var(--ok)" }}>{open.battery}%</strong>],
+              ["Heartbeat", <span className="mono">{open.lastHeartbeat}</span>],
+              ["Заметка", open.notes || "—"],
+              ...(open.offlineReason ? [["Причина offline", <span style={{ color: "var(--bad)" }}>{open.offlineReason}</span>]] : []),
+            ]} />
+          </Section>
+
+          <Section title={"Привязанные реквизиты (" + PAYMENT_DETAILS.filter((p) => p.terminal === open.id).length + ")"}>
+            <table className="table table--inset">
+              <thead><tr><th>ID</th><th>Метод</th><th>Банк</th><th>Реквизит</th><th>Статус</th></tr></thead>
+              <tbody>
+                {PAYMENT_DETAILS.filter((p) => p.terminal === open.id).map((p) => (
+                  <tr key={p.id}>
+                    <td className="mono">{p.id}</td>
+                    <td>{p.method === "sbp" ? "СБП" : "Карта"}</td>
+                    <td>{bankName(p.bank)}</td>
+                    <td className="mono">{p.target}</td>
+                    <td><StatusPill map={PD_STATUS} value={p.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Section>
+
+          <Section title={"Лог сообщений сегодня (" + (open.sms?.length || 0) + ")"}>
+            {(open.sms?.length || 0) === 0 ? <Empty>Сообщений пока нет</Empty> : (
+              <table className="table table--inset">
+                <thead><tr><th>Время</th><th>Источник</th><th>Банк</th><th className="num">Сумма</th><th>Текст</th></tr></thead>
+                <tbody>
+                  {open.sms.map((s, i) => (
+                    <tr key={i} style={!s.parsed ? { background: "var(--bad-soft)" } : null}>
+                      <td className="mono">{s.time}</td>
+                      <td className="mono">{s.kind}</td>
+                      <td>{s.bank}</td>
+                      <td className="num">{s.parsed ? fmtMoney(s.amount, "RUB") : <span style={{ color: "var(--bad)" }}>не распознано</span>}</td>
+                      <td className="muted" style={{ fontSize: 12 }}>{s.msg}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Section>
+        </Drawer>
+      )}
+
+      {showAdd && (
+        <Modal
+          title="Привязать новый терминал"
+          onClose={() => setShowAdd(false)}
+          footer={<>
+            <Btn variant="ghost" onClick={() => setShowAdd(false)}>Отмена</Btn>
+            <Btn variant="primary" onClick={() => setShowAdd(false)}>Сгенерировать QR</Btn>
+          </>}
+        >
+          <Field label="Название устройства" hint="Чтобы отличать в списке">
+            <TextInput placeholder="Напр. «Pixel 7 — Москва»" />
+          </Field>
+          <Field label="Телефон SIM" hint="С него будут приходить SMS/Push от банка">
+            <TextInput placeholder="+7 ___ ___-__-__" mono />
+          </Field>
+          <Field label="Заметка"><TextInput placeholder="Опционально" /></Field>
+          <Note tone="info">После генерации QR откройте мобильное приложение CrowdPay Trader и отсканируйте код.</Note>
+        </Modal>
+      )}
+    </>
+  );
+}
+
+// ─── PAYMENT DETAILS ─────────────────────────────────────────────────────
+function TraderPaymentDetails() {
+  const [filter, setFilter] = React.useState("all");
+  const [openId, setOpenId] = React.useState(null);
+  const [showAdd, setShowAdd] = React.useState(false);
+  const filters = [
+    { value: "all", label: "Все", count: PAYMENT_DETAILS.length },
+    { value: "active", label: "Активные", count: PAYMENT_DETAILS.filter((p) => p.status === "active").length },
+    { value: "limit-exceeded", label: "Лимит", count: PAYMENT_DETAILS.filter((p) => p.status === "limit-exceeded").length },
+    { value: "terminal-offline", label: "Терминал offline", count: PAYMENT_DETAILS.filter((p) => p.status === "terminal-offline").length },
+    { value: "blocked", label: "Заблокированы", count: PAYMENT_DETAILS.filter((p) => p.status === "blocked").length },
+  ];
+  const visible = PAYMENT_DETAILS.filter((p) => filter === "all" || p.status === filter);
+  const open = PAYMENT_DETAILS.find((p) => p.id === openId);
+
+  return (
+    <>
+      <PageHead
+        title="Реквизиты"
+        sub="Карты и СБП-номера, на которые принимаются платежи. У каждого — лимиты по сумме, день, месяц и количеству операций. Метод и банк зашиты в реквизит."
+        actions={<Btn variant="primary" onClick={() => setShowAdd(true)}><span className="mono">＋</span> Добавить реквизит</Btn>}
+      />
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr>
+            <th>ID</th><th>Метод</th><th>Реквизит</th>
+            <th>Терминал</th><th>Статус</th>
+            <th className="num">Лимит / день</th>
+            <th className="num">Опер. сегодня</th>
+            <th className="num">Успех</th>
+          </tr></thead>
+          <tbody>
+            {visible.map((p) => (
+              <tr key={p.id} className={openId === p.id ? "is-selected" : ""} onClick={() => setOpenId(p.id)}>
+                <td className="mono">{p.id}</td>
+                <td><span className="badge-type">{p.method === "sbp" ? "СБП" : "Карта"}</span></td>
+                <td><div className="mono">{p.target}</div><div className="muted" style={{ fontSize: 11 }}>{bankName(p.bank)}</div></td>
+                <td className="mono">{p.terminal}</td>
+                <td>
+                  <StatusPill map={PD_STATUS} value={p.status} />
+                  {p.cooldown && <span className="muted mono" style={{ fontSize: 11, marginLeft: 6 }}>⏱ {Math.floor(p.cooldown.remainingSec/60)}:{String(p.cooldown.remainingSec%60).padStart(2,"0")}</span>}
+                </td>
+                <td className="num">
+                  <Bar v={p.dailyUsed} />
+                  <div className="muted mono" style={{ fontSize: 11, marginTop: 2 }}>{fmtMoney(p.todayVolumeRub, "RUB")} / {fmtMoney(p.dailyLimit, "RUB")}</div>
+                </td>
+                <td className="num mono">{p.opsToday}/{p.opsLimit}</td>
+                <td className="num mono">{Math.round(p.success * 100)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {open && (
+        <Drawer
+          title="Реквизит"
+          id={open.id}
+          status={open.status}
+          statusMap={PD_STATUS}
+          onClose={() => setOpenId(null)}
+          wide
+          extraTags={open.cooldown && <span className="dispute-sla mono">cooldown {Math.floor(open.cooldown.remainingSec/60)}:{String(open.cooldown.remainingSec%60).padStart(2,"0")} после {open.cooldown.after}</span>}
+          footer={<>
+            <Btn variant="ghost">Изменить лимиты</Btn>
+            <span className="spacer" />
+            {open.status === "active"
+              ? <Btn variant="danger">Отключить</Btn>
+              : <Btn variant="ok">Включить</Btn>}
+          </>}
+        >
+          {open.blockReason && <Note tone="bad">{open.blockReason}</Note>}
+
+          <Section title="Реквизит">
+            <KV items={[
+              ["Метод", open.method === "sbp" ? "СБП (по номеру телефона)" : "Карта"],
+              ["Банк", <strong>{bankName(open.bank)}</strong>],
+              ["Держатель", open.holder],
+              ["Цель / номер", <span className="mono"><strong>{open.target}</strong></span>],
+              ["Привязка к терминалу", <span className="mono">{open.terminal}</span>],
+            ]} />
+          </Section>
+
+          <Section title="Лимиты">
+            <KV items={[
+              ["Мин. сумма заявки", fmtMoney(open.minAmount, "RUB")],
+              ["Макс. сумма заявки", fmtMoney(open.maxAmount, "RUB")],
+              ["Дневной лимит", <><Bar v={open.dailyUsed} /> {fmtMoney(open.todayVolumeRub, "RUB")} / {fmtMoney(open.dailyLimit, "RUB")}</>],
+              ["Месячный лимит", <><Bar v={open.monthlyUsed} /> {fmtMoney(open.monthVolumeRub, "RUB")} / {fmtMoney(open.monthlyLimit, "RUB")}</>],
+              ["Операций сегодня", <>{open.opsToday} / {open.opsLimit}</>],
+              ["Задержка между платежами", <span className="mono">{open.paymentDelaySec ? (open.paymentDelaySec >= 60 ? Math.floor(open.paymentDelaySec/60) + " мин" + (open.paymentDelaySec%60 ? " " + (open.paymentDelaySec%60) + " сек" : "") : open.paymentDelaySec + " сек") : "—"}</span>],
+              ["Успешность", <strong>{Math.round(open.success * 100)}%</strong>],
+            ]} />
+          </Section>
+
+          <Section title="Последние платежи">
+            {PAY_IN.filter((o) => o.details === open.id).length === 0 ? <Empty>Платежей нет</Empty> : (
+              <table className="table table--inset">
+                <thead><tr><th>ID</th><th>Дата</th><th className="num">Сумма</th><th>Статус</th></tr></thead>
+                <tbody>
+                  {PAY_IN.filter((o) => o.details === open.id).slice(0, 8).map((o) => (
+                    <tr key={o.id}>
+                      <td className="mono">{o.id}</td>
+                      <td className="mono">{o.date}</td>
+                      <td className="num">{fmtMoney(o.amount, "RUB")}</td>
+                      <td><StatusPill map={PAY_IN_STATUS} value={o.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Section>
+        </Drawer>
+      )}
+
+      {showAdd && (
+        <Modal
+          title="Добавить реквизит"
+          onClose={() => setShowAdd(false)}
+          footer={<>
+            <Btn variant="ghost" onClick={() => setShowAdd(false)}>Отмена</Btn>
+            <Btn variant="primary" onClick={() => setShowAdd(false)}>Создать</Btn>
+          </>}
+        >
+          <div className="row-2">
+            <Field label="Метод"><Select value="sbp" options={[{ value: "sbp", label: "СБП" }, { value: "card", label: "Карта" }]} /></Field>
+            <Field label="Банк"><Select value="B-A" options={BANKS.map((b) => ({ value: b.id, label: b.name }))} /></Field>
+          </div>
+          <Field label="Держатель"><TextInput placeholder="ФИО, как в банке" /></Field>
+          <Field label="Реквизит" hint="Номер телефона для СБП или последние 4 цифры карты"><TextInput placeholder="+7 ___ ___-__-__ или •••• ____" mono /></Field>
+          <Field label="Терминал"><Select value="T-1001" options={TERMINALS.filter((t) => t.status === "online").map((t) => ({ value: t.id, label: t.id + " · " + t.name }))} /></Field>
+          <div className="row-2">
+            <Field label="Дневной лимит, ₽"><TextInput placeholder="500 000" /></Field>
+            <Field label="Месячный лимит, ₽"><TextInput placeholder="8 000 000" /></Field>
+          </div>
+          <div className="row-2">
+            <Field label="Мин. сумма, ₽"><TextInput placeholder="500" /></Field>
+            <Field label="Макс. сумма, ₽"><TextInput placeholder="200 000" /></Field>
+          </div>
+          <Field label="Лимит операций / день"><TextInput placeholder="500" /></Field>
+        </Modal>
+      )}
+    </>
+  );
+}
+
+Object.assign(window, {
+  TraderDashboard, TraderPayIn, TraderPayOut, TraderTerminals, TraderPaymentDetails,
+  Bar, MoneyBig, PayOutDrawer,
+});
+
+</script>
+<script type="text/babel" data-presets="react">
+/* inlined: trader-sections-2.jsx */
+// Trader app — sections part 2: Финансы, Споры, Тариф, Профиль
+
+// ─── ФИНАНСЫ ─────────────────────────────────────────────────────────────
+function TraderFinance({ go }) {
+  const [filter, setFilter] = React.useState("all");
+  const filters = [
+    { value: "all", label: "Все", count: LEDGER.length },
+    { value: "working", label: "Рабочий счёт", count: LEDGER.filter((l) => l.account === "working").length },
+    { value: "insurance", label: "Страховой", count: LEDGER.filter((l) => l.account === "insurance").length },
+    { value: "fines", label: "Штрафы и заморозки", count: LEDGER.filter((l) => ["fine","freeze","release"].includes(l.type)).length },
+    { value: "commission", label: "Комиссии", count: LEDGER.filter((l) => l.type === "commission").length },
+  ];
+  const visible = LEDGER.filter((l) => {
+    if (filter === "all") return true;
+    if (filter === "working") return l.account === "working";
+    if (filter === "insurance") return l.account === "insurance";
+    if (filter === "fines") return ["fine","freeze","release"].includes(l.type);
+    if (filter === "commission") return l.type === "commission";
+    return true;
+  });
+
+  return (
+    <>
+      <PageHead
+        title="Финансы"
+        sub="Балансы и движения по обоим счетам. Рабочий — оборотные деньги. Страховой — депозит, из которого списываются штрафы и заморозки по спорам."
+        actions={<>
+          <Btn variant="ghost"><span className="mono">↧</span> Экспорт CSV</Btn>
+          <Btn variant="primary">Пополнить</Btn>
+        </>}
+      />
+
+      {/* Балансы */}
+      <div className="hero-grid">
+        <div className="hero-card hero-card--accent">
+          <div className="hero-card__label">Рабочий баланс</div>
+          <div className="hero-card__value">{fmtMoney(BALANCES.working.amount, "USDT")}</div>
+          <div className="hero-card__actions">
+            <Btn variant="primary" size="sm">Запросить вывод</Btn>
+          </div>
+        </div>
+        <div className="hero-card">
+          <div className="hero-card__label">Заблокировано</div>
+          <div className="hero-card__value">{fmtMoney(BALANCES.working.frozenUsdt, "USDT")}</div>
+          <div className="hero-card__actions">
+            <Btn variant="primary" size="sm" onClick={() => go("payin", { filter: "waiting-payment" })}>{PAY_IN.filter((o) => o.status === "waiting-payment").length} активных заявок →</Btn>
+          </div>
+        </div>
+        <div className="hero-card">
+          <div className="hero-card__label">Страховой депозит</div>
+          <div className="hero-card__value">{fmtMoney(BALANCES.insurance.amount, "USDT")}</div>
+        </div>
+        <div className="hero-card">
+          <div className="hero-card__label">Заморожено по спорам</div>
+          <div className="hero-card__value" style={{ color: "var(--warn)" }}>{fmtMoney(BALANCES.insurance.locked, "USDT")}</div>
+          <div className="hero-card__actions">
+            <Btn variant="primary" size="sm" onClick={() => go("disputes", { filter: "active" })}>{DISPUTES.filter((d) => ["open","waiting-trader","waiting-admin"].includes(d.status)).length} активных споров →</Btn>
+          </div>
+        </div>
+      </div>
+
+      <Note tone="info">
+        <strong>Как это работает.</strong> Каждый принятый PayIn временно списывает с рабочего баланса эквивалент в USDT, после подтверждения возвращается с комиссией. PayOut, наоборот, зачисляет деньги. Штрафы и заморозки списываются из страхового депозита и не дают вам уйти ниже минимума.
+      </Note>
+
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr>
+            <th>ID</th><th>Дата</th><th>Счёт</th><th>Тип</th><th>Ордер</th>
+            <th className="num">Сумма USDT</th><th>Описание</th>
+          </tr></thead>
+          <tbody>
+            {visible.map((l) => (
+              <tr key={l.id}>
+                <td className="mono">{l.id}</td>
+                <td className="mono">{l.ts}</td>
+                <td>{l.account === "working" ? <Pill tone="info">Рабочий</Pill> : <Pill tone="warn">Страховой</Pill>}</td>
+                <td><StatusPill map={LEDGER_TYPE} value={l.type} /></td>
+                <td className="mono muted">{l.orderId || "—"}</td>
+                <td className="num"><strong style={{ color: l.amountUsdt >= 0 ? "var(--ok)" : "var(--bad)" }}>{l.amountUsdt >= 0 ? "+" : ""}{l.amountUsdt.toFixed(2)} USDT</strong></td>
+                <td className="muted" style={{ fontSize: 13 }}>{l.label}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="table-foot">Показано <strong>{visible.length}</strong> из <strong>{LEDGER.length}</strong> · обновляется в реальном времени</div>
+      </div>
+    </>
+  );
+}
+
+// ─── РЕЙТИНГ (отдельная страничка) ───────────────────────────────────────
+function TraderRating() {
+  return (
+    <>
+      <PageHead
+        title="Рейтинг"
+        sub="Что влияет на ваш рейтинг и какие он даёт привилегии. Считается ежедневно по факторам ниже."
+      />
+
+      <div className="hero-grid hero-grid--3">
+        <div className="hero-card hero-card--accent">
+          <div className="hero-card__label">Текущий рейтинг</div>
+          <div className="hero-card__value" style={{ fontSize: 48 }}>{RATING.score.toFixed(2)}</div>
+          <div className="hero-card__sub">из 5.00 · {RATING.trend > 0 ? "▲" : "▼"} {Math.abs(RATING.trend).toFixed(2)} за неделю</div>
+        </div>
+        <div className="hero-card">
+          <div className="hero-card__label">Что даёт</div>
+          <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+            {RATING.effects.map((e, i) => (
+              <div key={i} style={{ fontSize: 13, display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <span className="muted">{e.label}</span>
+                <strong>{e.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="hero-card">
+          <div className="hero-card__label">Группа доступа</div>
+          <div className="hero-card__value" style={{ fontSize: 22 }}>Уровень B+</div>
+          <div className="hero-card__sub">Доступны заявки до 200 000 ₽ и Выплаты</div>
+        </div>
+      </div>
+
+      <Section title="Из чего считается">
+        <table className="table table--inset">
+          <thead><tr>
+            <th>Фактор</th><th className="num">Текущее</th><th className="num">Вес</th><th className="num">Влияние</th>
+          </tr></thead>
+          <tbody>
+            {RATING.factors.map((f) => (
+              <tr key={f.id}>
+                <td>{f.label}</td>
+                <td className="num mono">{f.value}</td>
+                <td className="num mono muted">{Math.round(f.weight * 100)}%</td>
+                <td className="num">
+                  <strong style={{ color: f.impact > 0 ? "var(--ok)" : f.impact < 0 ? "var(--bad)" : "var(--ink-3)" }}>
+                    {f.impact > 0 ? "+" : ""}{f.impact.toFixed(1)}
+                  </strong>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Section>
+
+      <Note tone="info">
+        Рейтинг пересчитывается раз в сутки в 00:00 МСК. Возврат заявки PayOut в пул автоматически снижает рейтинг на 0.05. Проигранный спор — на 0.15.
+      </Note>
+    </>
+  );
+}
+
+// ─── СПОРЫ ───────────────────────────────────────────────────────────────
+function TraderDisputes({ initFilter }) {
+  const [filter, setFilter] = React.useState("active");
+  React.useEffect(() => {
+    if (initFilter && initFilter.value) setFilter(initFilter.value);
+  }, [initFilter && initFilter.key]);
+  const [openId, setOpenId] = React.useState(null);
+  const filters = [
+    { value: "active", label: "Активные", count: DISPUTES.filter((d) => ["open","waiting-trader","waiting-admin"].includes(d.status)).length },
+    { value: "waiting-trader", label: "Ждут меня", count: DISPUTES.filter((d) => d.status === "waiting-trader").length },
+    { value: "waiting-admin", label: "У саппорта", count: DISPUTES.filter((d) => d.status === "waiting-admin").length },
+    { value: "resolved", label: "Решены в мою пользу", count: DISPUTES.filter((d) => d.status === "resolved").length },
+    { value: "rejected", label: "Отклонены", count: DISPUTES.filter((d) => d.status === "rejected").length },
+    { value: "all", label: "Все", count: DISPUTES.length },
+  ];
+  const visible = DISPUTES.filter((d) => {
+    if (filter === "all") return true;
+    if (filter === "active") return ["open","waiting-trader","waiting-admin"].includes(d.status);
+    return d.status === filter;
+  });
+  const open = DISPUTES.find((d) => d.id === openId);
+
+  return (
+    <>
+      <PageHead
+        title="Споры"
+        sub="Спорные ордера. Срочно отвечайте на «Ждут меня» — иначе саппорт автоматически вынесет решение в пользу мерчанта и спишет деньги со страхового депозита."
+      />
+      <FilterChips filters={filters} value={filter} onChange={setFilter} />
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr>
+            <th>ID</th><th>Открыт</th><th>Ордер</th><th>Тип</th>
+            <th className="num">Сумма</th><th>Статус</th><th>SLA</th><th>Причина</th>
+          </tr></thead>
+          <tbody>
+            {visible.map((d) => (
+              <tr key={d.id} className={openId === d.id ? "is-selected" : ""} onClick={() => setOpenId(d.id)}>
+                <td className="mono">{d.id}</td>
+                <td className="mono">{d.opened}</td>
+                <td className="mono">{d.order}</td>
+                <td>{d.orderType}</td>
+                <td className="num">{fmtMoney(d.amount, "RUB")}</td>
+                <td><StatusPill map={DISPUTE_STATUS} value={d.status} /></td>
+                <td className="mono muted">{d.sla}</td>
+                <td className="muted truncate">{d.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {open && <DisputeDrawer dispute={open} onClose={() => setOpenId(null)} />}
+    </>
+  );
+}
+
+function DisputeDrawer({ dispute, onClose }) {
+  const [chat, setChat] = React.useState(dispute.chat);
+  const [draft, setDraft] = React.useState("");
+  const canSend = ["open","waiting-trader","waiting-admin"].includes(dispute.status);
+  const send = () => {
+    if (!draft.trim()) return;
+    setChat([...chat, { from: "trader", ts: "сейчас", text: draft.trim() }]);
+    setDraft("");
+  };
+  const attach = () => setChat([...chat, { from: "trader", ts: "сейчас", attach: "receipt_" + dispute.order + ".jpg" }]);
+
+  return (
+    <Drawer
+      title="Спор"
+      id={dispute.id}
+      status={dispute.status}
+      statusMap={DISPUTE_STATUS}
+      onClose={onClose}
+      wide
+      extraTags={dispute.deadline !== "—" && <span className="dispute-sla mono">SLA до {dispute.deadline}</span>}
+      footer={dispute.status === "waiting-trader" ? (
+        <>
+          <Btn variant="ghost" onClick={attach}>📎 Прикрепить чек</Btn>
+          <span className="spacer" />
+          <Btn variant="ok" onClick={send}>Отправить</Btn>
+        </>
+      ) : <span className="muted" style={{ fontSize: 12 }}>Ожидает действий другой стороны</span>}
+    >
+      <Section title="Сводка">
+        <KV items={[
+          ["Ордер", <span className="mono">{dispute.order} · {dispute.orderType}</span>],
+          ["Сумма", <strong>{fmtMoney(dispute.amount, "RUB")}</strong>],
+          ["Мерчант", dispute.merchant],
+          ["Клиент", dispute.customer],
+          ["Открыт", <span className="mono">{dispute.opened}</span>],
+          ["Дедлайн ответа", <span className="mono">{dispute.deadline}</span>],
+          ["Причина", dispute.reason],
+          ...(dispute.decision ? [["Решение", <strong>{dispute.decision}</strong>]] : []),
+        ]} />
+      </Section>
+
+      <Section title="Переписка">
+        <div className="chat">
+          {chat.map((m, i) => {
+            const role = m.from === "trader" ? "trader" : m.from === "merchant" ? "client" : "admin";
+            const author = m.from === "trader" ? "Вы" : m.from === "merchant" ? dispute.merchant : "Саппорт";
+            return (
+              <div key={i} className={"chat__msg chat__msg--" + role}>
+                <div className="chat__meta"><strong>{author}</strong> · <span className="mono">{m.ts}</span></div>
+                <div className="chat__bubble">
+                  {m.text}
+                  {m.attach && (
+                    <div style={{ marginTop: 6 }}>
+                      <PlaceholderImg label={"📎 " + m.attach} h={120} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {chat.length === 0 && <Empty>Пока нет сообщений</Empty>}
+        </div>
+        <div className="chat-input">
+          <button className="btn btn--ghost btn--sm" onClick={attach} disabled={!canSend} title="Прикрепить чек" style={{ padding: "0 12px" }}>📎</button>
+          <input
+            className="field__input"
+            placeholder={canSend ? "Напишите сообщение саппорту..." : "Спор закрыт — отправка недоступна"}
+            value={draft}
+            disabled={!canSend}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") send(); }}
+          />
+          <Btn variant="primary" size="sm" onClick={send} disabled={!canSend || !draft.trim()}>Отправить</Btn>
+        </div>
+      </Section>
+    </Drawer>
+  );
+}
+
+// ─── ТАРИФ ───────────────────────────────────────────────────────────────
+function TraderTariff() {
+  const [tab, setTab] = React.useState("payin");
+  const rows = tab === "payin" ? TARIFF.payInMethods : TARIFF.payOutMethods;
+  const tabs = [
+    { value: "payin",  label: "PayIn",  count: TARIFF.payInMethods.length },
+    { value: "payout", label: "PayOut", count: TARIFF.payOutMethods.length },
+  ];
+  return (
+    <>
+      <PageHead
+        title="Тариф"
+        sub="Условия комиссий и ставок по платёжным методам. Меняется только админом — у трейдера режим только-чтение."
+      />
+
+      <Section title="Ставки по платёжным методам">
+        <FilterChips filters={tabs} value={tab} onChange={setTab} />
+        <table className="table table--inset">
+          <thead><tr>
+            <th>Платёжный метод</th>
+            <th className="num">Ставка (мне)</th>
+            <th className="num">Мин. сумма</th>
+            <th className="num">Макс. сумма</th>
+            <th>Особенности</th>
+          </tr></thead>
+          <tbody>
+            {rows.map((m) => (
+              <tr key={m.method}>
+                <td><strong>{m.label}</strong></td>
+                <td className="num mono">{m.rate.toFixed(1)}%</td>
+                <td className="num">{fmtMoney(m.min, "RUB")}</td>
+                <td className="num">{fmtMoney(m.max, "RUB")}</td>
+                <td className="muted">{m.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Section>
+
+      <Section title="История изменений">
+        <Timeline items={[
+          { time: "12.03.2024", text: "Тариф «" + TARIFF.name + "» назначен админом при KYC" },
+          { time: "—", text: "Изменений с этого момента не было", muted: true },
+        ]} />
+      </Section>
+    </>
+  );
+}
+
+// ─── ПРОФИЛЬ / НАСТРОЙКИ ─────────────────────────────────────────────────
+function TraderProfile() {
+  const [tab, setTab] = React.useState("account");
+  return (
+    <>
+      <PageHead
+        title="Настройки"
+        sub="Личные данные, безопасность и уведомления. KYC-данные меняются только через тикет в саппорт."
+      />
+
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { id: "account", label: "Аккаунт" },
+          { id: "security", label: "Безопасность" },
+          { id: "notifications", label: "Уведомления" },
+          { id: "kyc", label: "KYC" },
+        ]}
+      />
+
+      {tab === "account" && (
+        <>
+          <Section title="Личные данные">
+            <Field label="Полное имя"><TextInput value={ME.name} readOnly /></Field>
+            <Field label="Email" row><TextInput value={ME.email} readOnly /></Field>
+            <Field label="Телефон" row><TextInput value={ME.phone} readOnly mono /></Field>
+            <Field label="ID трейдера" row><TextInput value={ME.id} readOnly mono /></Field>
+            <Field label="Команда" row><TextInput value={ME.team} readOnly /></Field>
+            <Field label="Зарегистрирован" row><TextInput value={ME.registered} readOnly mono /></Field>
+          </Section>
+          <Section title="Безопасность аккаунта">
+            <div style={{ display: "flex", gap: 8 }}>
+              <Btn variant="ghost">Сменить пароль</Btn>
+              <Btn variant="danger">Выйти со всех устройств</Btn>
+            </div>
+          </Section>
+        </>
+      )}
+
+      {tab === "security" && (
+        <>
+          <Section title="Двухфакторная аутентификация (2FA)">
+            <KV items={[
+              ["Статус", <Pill tone="ok">Включена</Pill>],
+              ["Метод", "Authenticator app (TOTP)"],
+              ["Включена", <span className="mono">14.03.2024</span>],
+            ]} />
+            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+              <Btn variant="ghost">Перенастроить 2FA</Btn>
+              <Btn variant="ghost">Скачать резервные коды</Btn>
+            </div>
+          </Section>
+          <Section title="Активные сессии">
+            <table className="table table--inset">
+              <thead><tr><th>Устройство</th><th>Локация</th><th>IP</th><th>Активность</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>MacBook · Safari</td><td>Москва</td><td className="mono">95.165.10.42</td><td className="mono">сейчас</td><td><Pill tone="ok">Текущая</Pill></td></tr>
+                <tr><td>iPhone 15 · приложение</td><td>Москва</td><td className="mono">95.165.10.42</td><td className="mono">2 мин назад</td><td><Btn size="sm" variant="ghost">Завершить</Btn></td></tr>
+                <tr><td>Android · приложение</td><td>Москва</td><td className="mono">95.165.10.42</td><td className="mono">10 мин назад</td><td><Btn size="sm" variant="ghost">Завершить</Btn></td></tr>
+              </tbody>
+            </table>
+          </Section>
+        </>
+      )}
+
+      {tab === "notifications" && (
+        <Section title="Уведомления">
+          <ToggleRow label="Новая свободная Выплата" hint="Push в приложении и Telegram" defaultOn />
+          <ToggleRow label="Дедлайн взятой Выплаты подходит к концу" hint="Push за 5 минут до истечения" defaultOn />
+          <ToggleRow label="Чек принят / отклонён" hint="Push + Email" defaultOn />
+          <ToggleRow label="Терминал ушёл в offline" hint="Push + Telegram" defaultOn />
+          <ToggleRow label="Реквизит достиг 90% дневного лимита" hint="Push" defaultOn />
+          <ToggleRow label="Открыт спор по моему ордеру" hint="Push + Email" defaultOn />
+          <ToggleRow label="Списание со страхового депозита" hint="Email" defaultOn />
+          <ToggleRow label="Изменение тарифа админом" hint="Email" defaultOn />
+          <ToggleRow label="Маркетинговые рассылки CrowdPay" />
+        </Section>
+      )}
+
+      {tab === "kyc" && (
+        <>
+          <Section title="KYC-статус">
+            <KV items={[
+              ["Статус", <Pill tone="ok">Verified</Pill>],
+              ["Подтверждён", <span className="mono">14.03.2024</span>],
+              ["Метод", "Документ + видео-селфи"],
+              ["Срок действия", <span className="mono">14.03.2026</span>],
+            ]} />
+          </Section>
+          <Section title="Документы">
+            <table className="table table--inset">
+              <thead><tr><th>Тип</th><th>Номер / файл</th><th>Загружен</th><th>Статус</th></tr></thead>
+              <tbody>
+                <tr><td>Паспорт РФ</td><td className="mono">**** **** 4421</td><td className="mono">14.03.2024</td><td><Pill tone="ok">Approved</Pill></td></tr>
+                <tr><td>Селфи с документом</td><td className="mono">photo_4421.jpg</td><td className="mono">14.03.2024</td><td><Pill tone="ok">Approved</Pill></td></tr>
+              </tbody>
+            </table>
+          </Section>
+          <Note tone="info">Изменить KYC-данные можно только через запрос саппорту — откройте тикет.</Note>
+        </>
+      )}
+    </>
+  );
+}
+
+function ToggleRow({ label, hint, defaultOn }) {
+  const [on, setOn] = React.useState(!!defaultOn);
+  return (
+    <div className="toggle-row">
+      <div>
+        <div className="toggle-row__label">{label}</div>
+        {hint && <div className="toggle-row__hint">{hint}</div>}
+      </div>
+      <button className={"switch" + (on ? " switch--on" : "")} onClick={() => setOn(!on)} aria-pressed={on}>
+        <span className="switch__thumb" />
+      </button>
+    </div>
+  );
+}
+
+Object.assign(window, {
+  TraderFinance, TraderRating, TraderDisputes, DisputeDrawer,
+  TraderTariff, TraderProfile, ToggleRow,
+});
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ── shell ───────────────────────────────────────────────────────────────── */
+
+function Sidebar({ active, onChange }) {
+  const navById = Object.fromEntries(NAV.map((n) => [n.id, n]));
+  return (
+    <aside className="sidebar" style={{ background: "linear-gradient(180deg, #f5edda 0%, var(--paper) 220px)" }}>
+      <div className="app-banner">
+        <div className="app-banner__row">
+          <svg className="app-banner__logo" viewBox="0 0 100 100" aria-hidden="true">
+            <mask id="cp-c-mask">
+              <rect width="100" height="100" fill="#fff"/>
+              <circle cx="50" cy="50" r="28" fill="#000"/>
+              <rect x="50" y="40" width="55" height="20" fill="#000"/>
+            </mask>
+            <circle cx="50" cy="50" r="46" fill="var(--teal)" mask="url(#cp-c-mask)"/>
+            <circle cx="50" cy="50" r="10" fill="var(--teal)"/>
+          </svg>
+          <div className="app-banner__name">CrowdPay</div>
+          <div className="app-banner__role">trader</div>
+        </div>
+        {(() => {
+          const w = BALANCES.working;
+          const low = w.amount < w.minRequired;
+          const fmt = (n) => n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          return (
+            <div className="app-banner__pulse">
+              <div className="app-banner__pulse-label">
+                <span>Рабочий баланс</span>
+                {low && <span className="app-banner__balance-low">ниже мин.</span>}
+              </div>
+              <div className="app-banner__pulse-meta">
+                <div className="app-banner__meta-row">
+                  <span className="app-banner__meta-label">Активный</span>
+                  <b>{fmt(w.amount)} <span className="ccy">USDT</span></b>
+                </div>
+                <div className="app-banner__meta-row">
+                  <span className="app-banner__meta-label">Блок.</span>
+                  <b>{fmt(BALANCES.working.frozenUsdt)} <span className="ccy">USDT</span></b>
+                </div>
+                <div className="app-banner__meta-row">
+                  <span className="app-banner__meta-label">Курс</span>
+                  <b>{ME.usdtRate.toFixed(2)} <span className="ccy">₽/USDT</span></b>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+      {NAV_GROUPS.map((g) => (
+        <React.Fragment key={g.label || "_top"}>
+          {g.label && <div className="sidebar__group">{g.label}</div>}
+          {g.ids.map((id) => {
+            const item = navById[id];
+            if (!item) return null;
+            const isActive = active === id;
+            return (
+              <button
+                key={id}
+                className={"nav-item" + (isActive ? " nav-item--active" : "")}
+                onClick={() => onChange(id)}
+              >
+                <span className="nav-item__icon">{item.icon}</span>
+                <span>{item.label}</span>
+                {item.count != null && item.count > 0 && (
+                  <span className="nav-item__count">{item.count}</span>
+                )}
+              </button>
+            );
+          })}
+        </React.Fragment>
+      ))}
+      <div className="sidebar__footer">
+        <div className="sidebar__avatar" style={{ background: "var(--teal)" }}>АМ</div>
+        <div style={{ lineHeight: 1.2 }}>
+          <div style={{ fontWeight: 600, color: "var(--ink)" }}>{ME.name}</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}>{ME.id} · ⭐ {ME.rating}</div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function Topbar({ active }) {
+  const n = NAV.find((x) => x.id === active);
+  return (
+    <header className="topbar">
+      <span className="topbar__app-tag">Trader · {ME.name}</span>
+      <div className="topbar__crumbs">
+        <span style={{ color: "var(--ink-4)" }}>/</span>
+        <strong>{n ? n.label : ""}</strong>
+      </div>
+      <div className="topbar__search">
+        <span style={{ opacity: 0.6 }}>⌕</span>
+        <span>Поиск ордеров, реквизитов, терминалов…</span>
+        <span className="topbar__kbd">⌘K</span>
+      </div>
+    </header>
+  );
+}
+
+function App() {
+  const [active, setActive] = React.useState("dashboard");
+  const [payOutInitFilter, setPayOutInitFilter] = React.useState(null);
+  const [payInInitFilter, setPayInInitFilter] = React.useState(null);
+  const [disputesInitFilter, setDisputesInitFilter] = React.useState(null);
+  const [tweaks, setTweak] = useTweaks(window.__TWEAK_DEFAULTS__);
+
+  React.useEffect(() => {
+    document.documentElement.style.setProperty("--accent", tweaks.accent);
+    document.documentElement.style.setProperty("--accent-soft", tweaks.accent + "22");
+  }, [tweaks.accent]);
+
+  const go = (target, opts) => {
+    if (target === "payout" && opts && opts.filter) setPayOutInitFilter({ value: opts.filter, key: Date.now() });
+    if (target === "payin" && opts && opts.filter) setPayInInitFilter({ value: opts.filter, key: Date.now() });
+    if (target === "disputes" && opts && opts.filter) setDisputesInitFilter({ value: opts.filter, key: Date.now() });
+    setActive(target);
+  };
+
+  return (
+    <>
+      <div className={"app density-" + (tweaks.density || "compact")}>
+        <Sidebar active={active} onChange={setActive} />
+        <main className="main">
+          <Topbar active={active} />
+          <div className="content">
+            {active === "dashboard"  && <TraderDashboard go={go} />}
+            {active === "payout"     && <TraderPayOut initFilter={payOutInitFilter} />}
+            {active === "payin"      && <TraderPayIn initFilter={payInInitFilter} />}
+            {active === "disputes"   && <TraderDisputes initFilter={disputesInitFilter} />}
+            {active === "terminals"  && <TraderTerminals />}
+            {active === "details"    && <TraderPaymentDetails />}
+            {active === "finance"    && <TraderFinance go={go} />}
+            {active === "tariff"     && <TraderTariff />}
+            {active === "profile"    && <TraderProfile />}
+          </div>
+        </main>
+      </div>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Accent">
+          <TweakColor label="Accent color" value={tweaks.accent} onChange={(v) => setTweak("accent", v)} />
+        </TweakSection>
+        <TweakSection title="Density">
+          <TweakRadio
+            value={tweaks.density}
+            onChange={(v) => setTweak("density", v)}
+            options={[
+              { value: "compact", label: "Compact" },
+              { value: "cozy", label: "Cozy" },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+
+</body>
+</html>
